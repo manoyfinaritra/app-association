@@ -211,3 +211,10 @@ const styles = StyleSheet.create({
     color: '#526078',
   },
 });
+import EcranOnglet from '../components/EcranOnglet';
+
+export default function Accueil() {
+  return <EcranOnglet titre="Bienvenue Manoy !" 
+  
+  />;
+}

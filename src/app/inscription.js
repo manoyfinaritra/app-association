@@ -490,3 +490,8 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 });
+import EcranOnglet from '../components/EcranOnglet';
+
+export default function Inscription() {
+  return <EcranOnglet titre="Inscription" />;
+}

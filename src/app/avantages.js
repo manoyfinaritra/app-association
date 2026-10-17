@@ -110,3 +110,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
+import EcranOnglet from '../components/EcranOnglet';
+
+export default function Avantages() {
+  return <EcranOnglet titre="Mes avantages" />;
+}
