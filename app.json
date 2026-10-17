@@ -19,6 +19,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "scheme": "app-association",
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ]
   }
 }
