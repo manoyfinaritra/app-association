@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-
+import api from './api/api';
 export default function Inscription() {
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
@@ -22,7 +22,7 @@ export default function Inscription() {
   const [motivation, setMotivation] = useState('');
   const [accepte, setAccepte] = useState(false);
 
-  const envoyerInscription = () => {
+  const envoyerInscription = async () => {
     if (
       !nom.trim() ||
       !prenom.trim() ||
@@ -55,10 +55,34 @@ export default function Inscription() {
       return;
     }
 
-    Alert.alert(
-      'Formulaire validé',
-      "Votre formulaire est prêt. Pour enregistrer réellement votre demande d'inscription, une base de données ou un service serveur doit être configuré."
-    );
+
+    try {
+      const data = {
+        nom: nom.trim(),
+        prenom: prenom.trim(),
+        email: email.trim(),
+        telephone: telephone.trim(),
+        profil: profil.trim(),
+        adresse: adresse.trim(),
+        motivation: motivation.trim(),
+      };
+
+      const response = await api.post('/inscriptions', data);
+      if(response.status === 200 || response.status === 201) {
+        Alert.alert(
+        'Formulaire validé',
+        "Votre formulaire est prêt. Pour enregistrer réellement votre demande d'inscription, une base de données ou un service serveur doit être configuré.")
+      }
+
+      
+      // );
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de la demande d\'inscription :', error);
+      Alert.alert(
+        'Erreur',
+        'Une erreur s\'est produite lors de l\'envoi de votre demande. Veuillez réessayer.'
+      );
+    }
   };
 
   const choisirProfil = (valeur) => {
