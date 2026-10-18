@@ -8,32 +8,92 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+<<<<<<< HEAD
+  Linking,
+=======
    KeyboardAvoidingView,
   Keyboard,
   Platform,
+>>>>>>> f4b20158f45e6ccf3d3f0c0689f98fe5be6161ac
 } from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Contact() {
+  const { t } = useLanguage();
+
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [sujet, setSujet] = useState('');
   const [message, setMessage] = useState('');
 
+  const telephone = '+261 34 70 840 46';
+  const telephoneWhatsApp = '261347084046';
+  const emailAssociation =
+    'association-entraide-madagascar@gmail.com';
+
+  
+  const ouvrirLien = async (url) => {
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert(
+        'Impossible d’ouvrir le lien',
+        'Vérifiez que l’application nécessaire est installée.'
+      );
+    }
+  };
+
+  
+  const ouvrirEmail = () => {
+    ouvrirLien(`mailto:${emailAssociation}`);
+  };
+
+  const appelerAssociation = () => {
+    ouvrirLien(`tel:${telephone.replace(/\s/g, '')}`);
+  };
+
+  
+  const ouvrirWhatsApp = () => {
+    ouvrirLien(`https://wa.me/${telephoneWhatsApp}`);
+  };
+
+  
+  const ouvrirFacebook = () => {
+    ouvrirLien('https://www.facebook.com/');
+  };
+
   const envoyerMessage = () => {
      Keyboard.dismiss();
     if (!nom.trim() || !email.trim() || !message.trim()) {
+      Alert.alert(t('missingFields'), t('fillRequired'));
+      return;
+    }
+
+    const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailValide.test(email.trim())) {
       Alert.alert(
-        'Champs obligatoires',
-        'Veuillez remplir votre nom, votre email et votre message.'
+        'E-mail invalide',
+        'Veuillez saisir une adresse e-mail valide.'
       );
       return;
     }
 
-    Alert.alert(
-      'Message préparé',
-      "Merci de contacter l'Association d'Entraide Madagascar !\n\nPour envoyer réellement votre message, un service d'envoi doit être configuré."
-    );
+    const sujetFinal = sujet.trim() || 'Message depuis le site AEM';
+
+    const corpsMessage =
+      `Nom : ${nom.trim()}\n` +
+      `E-mail : ${email.trim()}\n\n` +
+      `Message :\n${message.trim()}`;
+
+    const url =
+      `mailto:${emailAssociation}` +
+      `?subject=${encodeURIComponent(sujetFinal)}` +
+      `&body=${encodeURIComponent(corpsMessage)}`;
+
+    ouvrirLien(url);
   };
 
   return (
@@ -46,7 +106,7 @@ export default function Contact() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-      {/* En-tête */}
+     
       <View style={styles.entete}>
         <View style={styles.iconeEntete}>
           <Ionicons
@@ -56,22 +116,26 @@ export default function Contact() {
           />
         </View>
 
-        <Text style={styles.titre}>Contactez-nous</Text>
+        <Text style={styles.titre}>{t('contact')}</Text>
 
         <Text style={styles.sousTitre}>
-          Une question ou une suggestion ?
+          {t('question')}
           {'\n'}
-          L'équipe AEM est là pour vous écouter.
+          {t('contactTeam')}
         </Text>
       </View>
 
-      {/* Coordonnées */}
+      
       <View style={styles.carte}>
         <Text style={styles.titreSection}>
-          Nos coordonnées
+          {t('coordinates')}
         </Text>
 
-        <View style={styles.ligneContact}>
+        {/* E-mail */}
+        <Pressable
+          style={styles.ligneContact}
+          onPress={ouvrirEmail}
+        >
           <View style={styles.iconeContact}>
             <Ionicons
               name="mail"
@@ -79,15 +143,26 @@ export default function Contact() {
               color="#079DA6"
             />
           </View>
+
           <View style={styles.information}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>E-mail</Text>
             <Text style={styles.valeur}>
-              À compléter avec votre adresse email
+              {emailAssociation}
             </Text>
           </View>
-        </View>
 
-        <View style={styles.ligneContact}>
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color="#64748B"
+          />
+        </Pressable>
+
+        
+        <Pressable
+          style={styles.ligneContact}
+          onPress={appelerAssociation}
+        >
           <View style={styles.iconeContact}>
             <Ionicons
               name="call"
@@ -95,80 +170,137 @@ export default function Contact() {
               color="#079DA6"
             />
           </View>
+
           <View style={styles.information}>
             <Text style={styles.label}>Téléphone</Text>
-            <Text style={styles.valeur}>
-              À compléter avec votre numéro
-            </Text>
+            <Text style={styles.valeur}>{telephone}</Text>
           </View>
-        </View>
 
-        <View style={styles.ligneContact}>
-          <View style={styles.iconeContact}>
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color="#64748B"
+          />
+        </Pressable>
+
+        {/* WhatsApp */}
+        <Pressable
+          style={styles.ligneContact}
+          onPress={ouvrirWhatsApp}
+        >
+          <View
+            style={[
+              styles.iconeContact,
+              styles.iconeWhatsApp,
+            ]}
+          >
             <Ionicons
-              name="location"
+              name="logo-whatsapp"
               size={22}
-              color="#079DA6"
+              color="#25D366"
             />
           </View>
+
           <View style={styles.information}>
-            <Text style={styles.label}>Adresse</Text>
-            <Text style={styles.valeur}>
-              Madagascar
-            </Text>
+            <Text style={styles.label}>WhatsApp</Text>
+            <Text style={styles.valeur}>{telephone}</Text>
           </View>
-        </View>
+
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color="#64748B"
+          />
+        </Pressable>
+
+        {/* Facebook */}
+        <Pressable
+          style={[styles.ligneContact, styles.derniereLigne]}
+          onPress={ouvrirFacebook}
+        >
+          <View
+            style={[
+              styles.iconeContact,
+              styles.iconeFacebook,
+            ]}
+          >
+            <Ionicons
+              name="logo-facebook"
+              size={22}
+              color="#1877F2"
+            />
+          </View>
+
+          <View style={styles.information}>
+            <Text style={styles.label}>Facebook</Text>
+            <Text style={styles.valeur}>AEM</Text>
+          </View>
+
+          <Ionicons
+            name="open-outline"
+            size={18}
+            color="#64748B"
+          />
+        </Pressable>
       </View>
 
-      {/* Formulaire */}
+      {/* Formulaire de contact */}
       <View style={styles.carte}>
         <Text style={styles.titreSection}>
-          Envoyez-nous un message
+          {t('sendMessage')}
         </Text>
 
         <Text style={styles.labelChamp}>
-          Nom complet *
+          {t('fullName')} *
         </Text>
+
         <TextInput
           style={styles.champ}
-          placeholder="Votre nom complet"
+          placeholder={t('placeholderName')}
           placeholderTextColor="#8994A5"
           value={nom}
           onChangeText={setNom}
           autoCapitalize="words"
+          returnKeyType="next"
         />
 
         <Text style={styles.labelChamp}>
-          Adresse email *
+          {t('email')} *
         </Text>
+
         <TextInput
           style={styles.champ}
-          placeholder="exemple@email.com"
+          placeholder={t('placeholderEmail')}
           placeholderTextColor="#8994A5"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="next"
           
         />
 
         <Text style={styles.labelChamp}>
-          Sujet
+          {t('subject')}
         </Text>
+
         <TextInput
           style={styles.champ}
-          placeholder="Objet de votre message"
+          placeholder={t('placeholderSubject')}
           placeholderTextColor="#8994A5"
           value={sujet}
           onChangeText={setSujet}
+          returnKeyType="next"
         />
 
         <Text style={styles.labelChamp}>
-          Votre message *
+          {t('yourMessage')} *
         </Text>
+
         <TextInput
           style={[styles.champ, styles.champMessage]}
-          placeholder="Écrivez votre message ici..."
+          placeholder={t('placeholderMessage')}
           placeholderTextColor="#8994A5"
           value={message}
           onChangeText={setMessage}
@@ -177,18 +309,28 @@ export default function Contact() {
         />
 
         <Pressable
-          style={styles.bouton}
+          style={({ pressed }) => [
+            styles.bouton,
+            pressed && styles.boutonPresse,
+          ]}
           onPress={envoyerMessage}
         >
           <Text style={styles.texteBouton}>
-            Envoyer le message
+            {t('send')}
           </Text>
+
           <Ionicons
             name="send"
             size={19}
             color="#FFFFFF"
           />
         </Pressable>
+
+        <Text style={styles.noteFormulaire}>
+          Votre application de messagerie s'ouvrira avec
+          le message prérempli. Vous devrez confirmer
+          l'envoi depuis cette application.
+        </Text>
       </View>
 
       {/* Pied de page */}
@@ -198,11 +340,13 @@ export default function Contact() {
           size={24}
           color="#079DA6"
         />
+
         <Text style={styles.textePiedPage}>
-          Association d'Entraide Madagascar
+          {t('association')}
         </Text>
+
         <Text style={styles.slogan}>
-          Ensemble, avançons !
+          {t('slogan')}
         </Text>
       </View>
     </ScrollView>
@@ -215,9 +359,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F4F9FA',
   },
+
   contenu: {
     paddingBottom: 30,
   },
+
   entete: {
     backgroundColor: '#073B5C',
     paddingHorizontal: 24,
@@ -227,6 +373,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 25,
     alignItems: 'center',
   },
+
   iconeEntete: {
     width: 65,
     height: 65,
@@ -236,6 +383,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
   },
+
   titre: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -243,12 +391,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+
   sousTitre: {
     fontSize: 15,
     color: '#E5F6F6',
     textAlign: 'center',
     lineHeight: 23,
   },
+
   carte: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 18,
@@ -261,17 +411,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 5,
   },
+
   titreSection: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#183568',
     marginBottom: 20,
   },
+
   ligneContact: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 18,
   },
+
+  derniereLigne: {
+    marginBottom: 0,
+  },
+
   iconeContact: {
     width: 45,
     height: 45,
@@ -281,19 +438,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
+
+  iconeWhatsApp: {
+    backgroundColor: '#E8F9EF',
+  },
+
+  iconeFacebook: {
+    backgroundColor: '#EAF2FF',
+  },
+
   information: {
     flex: 1,
   },
+
   label: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#183568',
     marginBottom: 4,
   },
+
   valeur: {
     fontSize: 13,
     color: '#526078',
+    lineHeight: 19,
+    flexShrink: 1,
   },
+
   labelChamp: {
     fontSize: 14,
     fontWeight: '600',
@@ -301,6 +472,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 8,
   },
+
   champ: {
     backgroundColor: '#F7FAFC',
     borderWidth: 1,
@@ -312,10 +484,12 @@ const styles = StyleSheet.create({
     color: '#183568',
     marginBottom: 12,
   },
+
   champMessage: {
     height: 120,
     paddingTop: 14,
   },
+
   bouton: {
     backgroundColor: '#079DA6',
     borderRadius: 12,
@@ -326,16 +500,30 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 8,
   },
+
+  boutonPresse: {
+    opacity: 0.8,
+  },
+
   texteBouton: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
+
+  noteFormulaire: {
+    fontSize: 12,
+    color: '#64748B',
+    lineHeight: 18,
+    marginTop: 12,
+  },
+
   piedPage: {
     alignItems: 'center',
     marginTop: 28,
     paddingHorizontal: 20,
   },
+
   textePiedPage: {
     color: '#183568',
     fontSize: 15,
@@ -343,9 +531,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
   },
+
   slogan: {
     color: '#079DA6',
     fontSize: 13,
     marginTop: 5,
+    textAlign: 'center',
   },
 });
