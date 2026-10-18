@@ -8,13 +8,10 @@ import {
   Pressable,
   StyleSheet,
   Alert,
-<<<<<<< HEAD
   Linking,
-=======
    KeyboardAvoidingView,
   Keyboard,
   Platform,
->>>>>>> f4b20158f45e6ccf3d3f0c0689f98fe5be6161ac
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
