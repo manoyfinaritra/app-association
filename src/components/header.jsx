@@ -34,7 +34,7 @@ export default function Header() {
        <View style={styles.logoContainer}>
         <Image
           source={require('../../assets/logo.png')}
-          style={styles.logo}
+          style={styles.logo} 
         />
       </View>   
        <Text style={styles.titre}>AEM</Text>  
