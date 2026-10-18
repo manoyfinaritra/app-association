@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Header() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.entete}>
-      <Text style={styles.titre}>Association AEM</Text>
+      <Text style={styles.titre}>AEM</Text>
       <Text style={styles.sousTitre}>Ensemble, avançons !</Text>
     </SafeAreaView>
   );
