@@ -4,13 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Header() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.entete}>
-      <View style={styles.logoContainer}>
+     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+       <View style={styles.logoContainer}>
         <Image
           source={require('../../assets/logo.png')}
           style={styles.logo}
         />
-        <Text style={styles.titre}>AEM</Text>
-      </View>     
+      </View>   
+       <Text style={styles.titre}>AEM</Text>  
+     </View>
       <Text style={styles.sousTitre}>Associations d'Entraide Madagascar</Text>
     </SafeAreaView>
   );
@@ -42,9 +44,11 @@ const styles = StyleSheet.create({
   },
   logoContainer :{
     flexDirection : 'row',
+   
     alignItems : 'center',
     width : 50,
     height : 50,
-    gap : 6
+    gap : 6,
+
    }
 });
