@@ -8,7 +8,13 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+<<<<<<< HEAD
   Linking,
+=======
+   KeyboardAvoidingView,
+  Keyboard,
+  Platform,
+>>>>>>> f4b20158f45e6ccf3d3f0c0689f98fe5be6161ac
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -59,6 +65,7 @@ export default function Contact() {
   };
 
   const envoyerMessage = () => {
+     Keyboard.dismiss();
     if (!nom.trim() || !email.trim() || !message.trim()) {
       Alert.alert(t('missingFields'), t('fillRequired'));
       return;
@@ -90,7 +97,10 @@ export default function Contact() {
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+     style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}>  
+      <ScrollView
       style={styles.fond}
       contentContainerStyle={styles.contenu}
       showsVerticalScrollIndicator={false}
@@ -268,6 +278,7 @@ export default function Contact() {
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="next"
+          
         />
 
         <Text style={styles.labelChamp}>
@@ -339,6 +350,7 @@ export default function Contact() {
         </Text>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

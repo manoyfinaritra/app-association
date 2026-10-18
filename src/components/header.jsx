@@ -30,6 +30,16 @@ export default function Header() {
       </View>
 
       <Text style={styles.sousTitre}>{t('association')}</Text>
+     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+       <View style={styles.logoContainer}>
+        <Image
+          source={require('../../assets/logo.png')}
+          style={styles.logo}
+        />
+      </View>   
+       <Text style={styles.titre}>AEM</Text>  
+     </View>
+      <Text style={styles.sousTitre}>Associations d'Entraide Madagascar</Text>
     </SafeAreaView>
   );
 }
@@ -92,4 +102,13 @@ const styles = StyleSheet.create({
   langTextActive: {
     color: '#FFF',
   },
+  logoContainer :{
+    flexDirection : 'row',
+   
+    alignItems : 'center',
+    width : 50,
+    height : 50,
+    gap : 6,
+
+   }
 });
