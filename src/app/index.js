@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
+
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function Accueil() {
@@ -10,18 +11,7 @@ export default function Accueil() {
       contentContainerStyle={styles.contenu}
       showsVerticalScrollIndicator={false}
     >
-      {/* Logo et nom */}
-      <View style={styles.logo}>
-        <View style={styles.iconeLogo}>
-          <Ionicons name="people" size={30} color="#079DA6" />
-        </View>
-
-        <View>
-          <Text style={styles.nomLogo}>
-            Association d'Entraide Madagascar
-          </Text>
-        </View>
-      </View>
+     
 
       {/* Présentation */}
       <Text style={styles.titre}>
@@ -73,8 +63,7 @@ export default function Accueil() {
     </ScrollView>
   );
 }
-
-{/* Composant Carte réutilisable */}
+// Composant Carte réutilisable 
 function Carte({icone,titre}) {
   return (
     <View style={styles.carte}>
@@ -95,9 +84,12 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   logo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'culumn',
+    alignItems: 'start',
     marginBottom: 35,
+    justifyContent :" start",
+    borderBottomWidth : 1,
+    paddingVertical : 5
   },
   iconeLogo: {
     width: 52,
@@ -109,7 +101,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   nomLogo: {
-    fontSize: 20,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#079DA6',
     flexShrink: 1,
@@ -211,10 +203,3 @@ const styles = StyleSheet.create({
     color: '#526078',
   },
 });
-import EcranOnglet from '../components/EcranOnglet';
-
-export default function Accueil() {
-  return <EcranOnglet titre="Bienvenue Manoy !" 
-  
-  />;
-}

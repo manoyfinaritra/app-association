@@ -2,12 +2,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
+import Header from '../components/header';
 
 export default function Navigation() {
   return (
     <Tabs
+
+
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        header: () => <Header />,
 
         tabBarActiveTintColor: '#079DA6',
         tabBarInactiveTintColor: '#64748b',
