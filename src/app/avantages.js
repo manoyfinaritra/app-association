@@ -1,53 +1,64 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
-const avantages = [
-  {
-    icone: 'school-outline',
-    titre: 'Formations',
-    description: 'Developpez vos competences et decouvrez de nouvelles opportunites.',
-  },
-  {
-    icone: 'people-outline',
-    titre: 'Communaute',
-    description: 'Rencontrez les membres et partagez vos experiences.',
-  },
-  {
-    icone: 'calendar-outline',
-    titre: 'Evenements',
-    description: "Participez aux activites et aux rencontres de l'association.",
-  },
-  {
-    icone: 'heart-outline',
-    titre: 'Entraide et solidarite',
-    description: 'Ensemble, soutenons les initiatives et aidons notre communaute.',
-  },
-];
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Avantages() {
+  const { t } = useLanguage();
+
+  const avantages = [
+    {
+      icone: 'school-outline',
+      titre: t('trainings'),
+      description:
+        'Développez vos compétences et découvrez de nouvelles opportunités.',
+    },
+    {
+      icone: 'people-outline',
+      titre: t('community'),
+      description: 'Rencontrez les membres et partagez vos expériences.',
+    },
+    {
+      icone: 'calendar-outline',
+      titre: t('events'),
+      description:
+        "Participez aux activités et aux rencontres de l'association.",
+    },
+    {
+      icone: 'heart-outline',
+      titre: t('solidarity'),
+      description:
+        'Ensemble, soutenons les initiatives et aidons notre communauté.',
+    },
+  ];
+
   return (
-    <ScrollView style={styles.container}>
-    
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contenu}
+    >
       <View style={styles.entete}>
-        <Text style={styles.titre}>Nos avantages</Text>
-        <Text style={styles.sousTitre}>Ensemble, avançons plus loin avec AEM !</Text>
+        <Text style={styles.titre}>{t('advantages')}</Text>
+        <Text style={styles.sousTitre}>
+          {t('advantagesSubtitle')}
+        </Text>
       </View>
 
       {avantages.map((avantage, index) => (
         <View key={index} style={styles.carte}>
           <View style={styles.conteneurIcone}>
-            <Ionicons name={avantage.icone} size={32} color="#079DA6" />
+            <Ionicons
+              name={avantage.icone}
+              size={32}
+              color="#079DA6"
+            />
           </View>
 
           <Text style={styles.titreCarte}>
             {avantage.titre}
           </Text>
+
           <Text style={styles.description}>
             {avantage.description}
           </Text>
@@ -60,55 +71,69 @@ export default function Avantages() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F9FA',
+    backgroundColor: '#F8FAFC',
   },
+
+  contenu: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
   entete: {
-    backgroundColor: '#073B5C',
-    padding: 28,
-    paddingTop: 35,
-    paddingBottom: 35,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
+    marginBottom: 24,
+    marginTop: 10,
   },
+
   titre: {
-    fontSize: 27,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 8,
   },
+
   sousTitre: {
-    fontSize: 14,
-    color: '#E5F6F6',
+    fontSize: 16,
+    color: '#64748B',
+    lineHeight: 24,
   },
+
   carte: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 18,
-    marginTop: 18,
-    padding: 20,
     borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    alignItems: 'flex-start',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+
+    // Ombre
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
   },
+
   conteneurIcone: {
-    backgroundColor: '#E5F6F6',
-    padding: 15,
-    borderRadius: 50,
-    marginBottom: 12,
-    alignSelf: 'flex-start',
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    backgroundColor: '#E6F7F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
+
   titreCarte: {
     fontSize: 19,
     fontWeight: 'bold',
-    color: '#073B5C',
+    color: '#0F172A',
     marginBottom: 8,
   },
+
   description: {
-    fontSize: 14,
-    color: '#555555',
-    lineHeight: 22,
+    fontSize: 15,
+    color: '#64748B',
+    lineHeight: 23,
   },
 });
-

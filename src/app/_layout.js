@@ -1,97 +1,76 @@
-
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import Header from '../components/header';
+import { LanguageProvider, useLanguage } from '../context/LanguageContext';
 
-export default function Navigation() {
+function TabLayout() {
+  const { t } = useLanguage();
+
   return (
     <Tabs
-
-
       screenOptions={{
         headerShown: true,
         header: () => <Header />,
-
         tabBarActiveTintColor: '#079DA6',
         tabBarInactiveTintColor: '#64748b',
         tabBarHideOnKeyboard: true,
         tabBarActiveBackgroundColor: '#effafa',
         tabBarLabelPosition: 'below-icon',
-
         tabBarStyle: styles.barre,
         tabBarItemStyle: styles.onglet,
         tabBarLabelStyle: styles.libelle,
       }}
     >
-      {/* Accueil */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Accueil',
-          tabBarAccessibilityLabel: 'Accueil',
+          title: t('homeTab'),
+          tabBarLabel: t('homeTab'),
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'home' : 'home-outline'}
-              color={color}
-              size={size}
-            />
+            <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={size} />
           ),
         }}
       />
-
-      {/* Avantages */}
       <Tabs.Screen
         name="avantages"
         options={{
-          title: 'Avantages',
-          tabBarAccessibilityLabel: 'Avantages',
+          title: t('advantagesTab'),
+          tabBarLabel: t('advantagesTab'),
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'gift' : 'gift-outline'}
-              color={color}
-              size={size}
-            />
+            <Ionicons name={focused ? 'gift' : 'gift-outline'} color={color} size={size} />
           ),
         }}
       />
-
-      {/* Contacts */}
       <Tabs.Screen
         name="contacts"
         options={{
-          title: 'Contacts',
-          tabBarAccessibilityLabel: 'Contacts',
+          title: t('contactTab'),
+          tabBarLabel: t('contactTab'),
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'people' : 'people-outline'}
-              color={color}
-              size={size}
-            />
+            <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={size} />
           ),
         }}
       />
-
-      {/* Inscription */}
       <Tabs.Screen
         name="inscription"
         options={{
-          title: 'Inscription',
-          tabBarAccessibilityLabel: 'Inscription',
+          title: t('registrationTab'),
+          tabBarLabel: t('registrationTab'),
           tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={
-                focused
-                  ? 'person-add'
-                  : 'person-add-outline'
-              }
-              color={color}
-              size={size}
-            />
+            <Ionicons name={focused ? 'person-add' : 'person-add-outline'} color={color} size={size} />
           ),
         }}
       />
     </Tabs>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <LanguageProvider>
+      <TabLayout />
+    </LanguageProvider>
   );
 }
 
@@ -105,12 +84,10 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     elevation: 8,
   },
-
   onglet: {
     borderRadius: 12,
     marginHorizontal: 2,
   },
-
   libelle: {
     fontSize: 11,
     fontWeight: '600',
