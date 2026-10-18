@@ -23,7 +23,8 @@
     "scheme": "app-association",
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-asset"
     ]
   }
 }

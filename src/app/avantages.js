@@ -33,6 +33,7 @@ const avantages = [
 export default function Avantages() {
   return (
     <ScrollView style={styles.container}>
+    
       <View style={styles.entete}>
         <Text style={styles.titre}>Nos avantages</Text>
         <Text style={styles.sousTitre}>Ensemble, avançons plus loin avec AEM !</Text>
@@ -110,8 +111,4 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 });
-import EcranOnglet from '../components/EcranOnglet';
 
-export default function Avantages() {
-  return <EcranOnglet titre="Mes avantages" />;
-}
