@@ -8,11 +8,15 @@ export default function Header() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.entete}>
       <View style={styles.topRow}>
-        <View style={styles.logoContainer}>
+       <View style={{flexDirection : 'row', alignItems : 'center', gap : 6}}>
+       
+         <View style={styles.logoContainer}>
           <Image source={require('../../assets/logo.png')} style={styles.logo} />
-          <Text style={styles.titre}>AEM</Text>
         </View>
 
+         <Text style={styles.titre}>AEM</Text>
+         
+       </View>
         <View style={styles.langSwitch}>
           <Pressable 
             style={[styles.langBtn, language === 'fr' && styles.langActive]} 
@@ -29,17 +33,7 @@ export default function Header() {
         </View>
       </View>
 
-      <Text style={styles.sousTitre}>{t('association')}</Text>
-     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-       <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={styles.logo}
-        />
-      </View>   
-       <Text style={styles.titre}>AEM</Text>  
-     </View>
-      <Text style={styles.sousTitre}>Associations d'Entraide Madagascar</Text>
+      {/* <Text style={styles.sousTitre}>Association d'Entraide Madagascar</Text> */}
     </SafeAreaView>
   );
 }
