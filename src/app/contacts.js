@@ -8,6 +8,9 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+   KeyboardAvoidingView,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -18,6 +21,7 @@ export default function Contact() {
   const [message, setMessage] = useState('');
 
   const envoyerMessage = () => {
+     Keyboard.dismiss();
     if (!nom.trim() || !email.trim() || !message.trim()) {
       Alert.alert(
         'Champs obligatoires',
@@ -33,7 +37,10 @@ export default function Contact() {
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+     style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}>  
+      <ScrollView
       style={styles.fond}
       contentContainerStyle={styles.contenu}
       showsVerticalScrollIndicator={false}
@@ -142,6 +149,7 @@ export default function Contact() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          
         />
 
         <Text style={styles.labelChamp}>
@@ -198,6 +206,7 @@ export default function Contact() {
         </Text>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
