@@ -3,8 +3,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import Header from '../components/header';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function Navigation() {
+   const insets = useSafeAreaInsets();
   return (
     <Tabs
 
@@ -19,7 +20,13 @@ export default function Navigation() {
         tabBarActiveBackgroundColor: '#effafa',
         tabBarLabelPosition: 'below-icon',
 
-        tabBarStyle: styles.barre,
+        tabBarStyle: [
+  styles.barre,
+  {
+    height: 65 + insets.bottom,
+    paddingBottom: 5 + insets.bottom,
+  },
+],
         tabBarItemStyle: styles.onglet,
         tabBarLabelStyle: styles.libelle,
       }}
@@ -100,9 +107,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderTopColor: '#e2e8f0',
     borderTopWidth: 1,
-    height: 65,
+   
     paddingTop: 5,
-    paddingBottom: 5,
+    
     elevation: 8,
   },
 
