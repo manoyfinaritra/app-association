@@ -52,7 +52,8 @@ export default function Connexion() {
 
       const response = await api.post('/connexion', data);
       if (response.status === 200) {
-        router.replace('/');
+        router.replace('/dashboard');
+
         setEmail('');
         setMotDePasse('');
         setSeSouvenir(false);

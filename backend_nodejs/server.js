@@ -122,5 +122,4 @@ server.listen(PORT, HOST, () => {
 server.on('error', (err) => {
     console.error('Impossible de démarrer le serveur :', err.message);
     connection.end();
-    process.exitCode = 1;
 });

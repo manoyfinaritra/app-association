@@ -97,6 +97,10 @@ function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="dashboard"
+        options={{ title: 'Tableau de bord', href: null }}
+      />
     </Tabs>
   );
 }
