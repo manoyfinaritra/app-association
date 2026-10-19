@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { isAxiosError } from 'axios';
 import api from '../components/api/api';
 import {
   View,
@@ -13,16 +14,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-
 export default function Connexion() {
   const [email, setEmail] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [masquerMotDePasse, setMasquerMotDePasse] = useState(true);
   const [seSouvenir, setSeSouvenir] = useState(false);
   const [chargement, setChargement] = useState(false);
+  const [message, setMessage] = useState('');
 
   const envoyerConnexion = async () => {
-    if (!email.trim() || !motDePasse.trim()) {
+    setMessage('');
+
+    if (!email.trim() || !motDePasse) {
       Alert.alert(
         'Champs manquants',
         'Veuillez remplir tous les champs avant de continuer.'
@@ -44,22 +47,25 @@ export default function Connexion() {
     try {
       const data = {
         email: email.trim(),
-        password: motDePasse.trim(),
+        motDePasse,
       };
 
       const response = await api.post('/connexion', data);
-
-      if (response.status === 200 || response.status === 201) {
-        Alert.alert('Succès', 'Connexion réussie !');
-        // Redirection vers la page d'accueil ou tableau de bord
+      if (response.status === 200) {
         router.replace('/');
+        setEmail('');
+        setMotDePasse('');
+        setSeSouvenir(false);
       }
-    } catch (error) {
-      console.error('Erreur lors de la connexion :', error);
-      Alert.alert(
-        'Erreur de connexion',
-        'Email ou mot de passe incorrect. Veuillez réessayer.'
-      );
+    } catch (erreur) {
+      if (isAxiosError(erreur) && erreur.response) {
+        const messageServeur = erreur.response.data?.message;
+        setMessage(typeof messageServeur === 'string'
+          ? messageServeur
+          : 'Une erreur est survenue sur le serveur.');
+      } else {
+        setMessage('Impossible de joindre le serveur. Vérifiez votre connexion et l’adresse du backend.');
+      }
     } finally {
       setChargement(false);
     }
@@ -72,7 +78,6 @@ export default function Connexion() {
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-      {/* En-tête */}
       <View style={styles.entete}>
         <View style={styles.iconeEntete}>
           <Ionicons
@@ -87,13 +92,12 @@ export default function Connexion() {
         </Text>
 
         <Text style={styles.sousTitre}>
-          Association d'Entraide Madagascar
+          Association d&apos;Entraide Madagascar
           {'\n'}
           Content de vous revoir !
         </Text>
       </View>
 
-      {/* Introduction */}
       <View style={styles.introduction}>
         <Ionicons
           name="key-outline"
@@ -106,11 +110,15 @@ export default function Connexion() {
         </Text>
       </View>
 
-      {/* Formulaire */}
       <View style={styles.carte}>
         <Text style={styles.titreSection}>
           Identifiants
         </Text>
+        {message && (
+          <Text style={styles.message}>
+            {message}
+          </Text>
+        )}
 
         <Text style={styles.label}>
           Adresse email
@@ -152,7 +160,6 @@ export default function Connexion() {
           </Pressable>
         </View>
 
-        {/* Option Se souvenir de moi */}
         <View style={styles.ligneOption}>
           <Pressable
             style={styles.ligneConsentement}
@@ -171,7 +178,6 @@ export default function Connexion() {
           </Pressable>
         </View>
 
-        {/* Bouton de connexion */}
         <Pressable
           style={[styles.bouton, chargement && styles.boutonDesactive]}
           onPress={envoyerConnexion}
@@ -193,16 +199,14 @@ export default function Connexion() {
           )}
         </Pressable>
 
-        {/* Lien vers inscription */}
         <View style={styles.ligneInscription}>
-          <Text style={styles.texteQuestion}>Vous n'avez pas de compte ?</Text>
+          <Text style={styles.texteQuestion}>Vous n&apos;avez pas de compte ?</Text>
           <Pressable onPress={() => router.push('/Inscription')}>
-            <Text style={styles.texteLienInscription}> S'inscrire</Text>
+            <Text style={styles.texteLienInscription}> S&apos;inscrire</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* Retour à l'accueil */}
       <Pressable
         style={styles.boutonRetour}
         onPress={() => router.navigate('/')}
@@ -213,7 +217,7 @@ export default function Connexion() {
           color="#079DA6"
         />
         <Text style={styles.texteRetour}>
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Text>
       </Pressable>
 
@@ -224,7 +228,7 @@ export default function Connexion() {
           color="#079DA6"
         />
         <Text style={styles.nomAssociation}>
-          Association d'Entraide Madagascar
+          Association d&apos;Entraide Madagascar
         </Text>
         <Text style={styles.slogan}>
           Ensemble, avançons !
@@ -427,5 +431,17 @@ const styles = StyleSheet.create({
     color: '#079DA6',
     fontSize: 13,
     marginTop: 5,
+  },
+  message: {
+    color: '#FF0000',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
+    backgroundColor: '#FFE5E5',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FF0000',
+
   },
 });
