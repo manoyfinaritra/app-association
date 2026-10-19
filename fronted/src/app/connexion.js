@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../components/api/api';
 import {
   View,
   Text,
@@ -11,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import api from '../components/api/api';
+
 
 export default function Connexion() {
   const [email, setEmail] = useState('');
@@ -24,7 +25,7 @@ export default function Connexion() {
     if (!email.trim() || !motDePasse.trim()) {
       Alert.alert(
         'Champs manquants',
-        'Veuillez remplir votre email et votre mot de passe.'
+        'Veuillez remplir tous les champs avant de continuer.'
       );
       return;
     }
@@ -46,7 +47,7 @@ export default function Connexion() {
         password: motDePasse.trim(),
       };
 
-      const response = await api.post('/login', data);
+      const response = await api.post('/connexion', data);
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Succès', 'Connexion réussie !');
@@ -130,6 +131,7 @@ export default function Connexion() {
         </Text>
         <View style={styles.conteneurMotDePasse}>
           <TextInput
+
             style={styles.champMotDePasse}
             placeholder="Votre mot de passe"
             placeholderTextColor="#8994A5"
