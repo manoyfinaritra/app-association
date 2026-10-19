@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   View,
@@ -8,37 +7,29 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import api from '../components/api/api';
-export default function Inscription() {
-  const [nom, setNom] = useState('');
-  const [prenom, setPrenom] = useState('');
-  const [email, setEmail] = useState('');
-  const [telephone, setTelephone] = useState('');
-  const [profil, setProfil] = useState('');
-  const [adresse, setAdresse] = useState('');
-  const [motivation, setMotivation] = useState('');
-  const [accepte, setAccepte] = useState(false);
 
-  const envoyerInscription = async () => {
-    if (
-      !nom.trim() ||
-      !prenom.trim() ||
-      !email.trim() ||
-      !telephone.trim() ||
-      !profil
-    ) {
+export default function Connexion() {
+  const [email, setEmail] = useState('');
+  const [motDePasse, setMotDePasse] = useState('');
+  const [masquerMotDePasse, setMasquerMotDePasse] = useState(true);
+  const [seSouvenir, setSeSouvenir] = useState(false);
+  const [chargement, setChargement] = useState(false);
+
+  const envoyerConnexion = async () => {
+    if (!email.trim() || !motDePasse.trim()) {
       Alert.alert(
-        'Informations manquantes',
-        'Veuillez remplir tous les champs obligatoires.'
+        'Champs manquants',
+        'Veuillez remplir votre email et votre mot de passe.'
       );
       return;
     }
 
     const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-
     if (!emailValide) {
       Alert.alert(
         'Email invalide',
@@ -47,46 +38,30 @@ export default function Inscription() {
       return;
     }
 
-    if (!accepte) {
-      Alert.alert(
-        'Confirmation nécessaire',
-        "Veuillez confirmer votre accord avant de continuer."
-      );
-      return;
-    }
-
+    setChargement(true);
 
     try {
       const data = {
-        nom: nom.trim(),
-        prenom: prenom.trim(),
         email: email.trim(),
-        telephone: telephone.trim(),
-        profil: profil.trim(),
-        adresse: adresse.trim(),
-        motivation: motivation.trim(),
+        password: motDePasse.trim(),
       };
 
-      const response = await api.post('/inscriptions', data);
-      if(response.status === 200 || response.status === 201) {
-        Alert.alert(
-        'Formulaire validé',
-        "Votre formulaire est prêt. Pour enregistrer réellement votre demande d'inscription, une base de données ou un service serveur doit être configuré.")
+      const response = await api.post('/login', data);
+
+      if (response.status === 200 || response.status === 201) {
+        Alert.alert('Succès', 'Connexion réussie !');
+        // Redirection vers la page d'accueil ou tableau de bord
+        router.replace('/');
       }
-
-      
-      // );
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de la demande d\'inscription :', error);
+      console.error('Erreur lors de la connexion :', error);
       Alert.alert(
-        'Erreur',
-        'Une erreur s\'est produite lors de l\'envoi de votre demande. Veuillez réessayer.'
+        'Erreur de connexion',
+        'Email ou mot de passe incorrect. Veuillez réessayer.'
       );
+    } finally {
+      setChargement(false);
     }
-  };
-
-  const choisirProfil = (valeur) => {
-    setProfil(valeur);
   };
 
   return (
@@ -100,69 +75,44 @@ export default function Inscription() {
       <View style={styles.entete}>
         <View style={styles.iconeEntete}>
           <Ionicons
-            name="person-add-outline"
+            name="log-in-outline"
             size={32}
             color="#079DA6"
           />
         </View>
 
         <Text style={styles.titre}>
-          Devenir membre
+          Se connecter
         </Text>
 
         <Text style={styles.sousTitre}>
-          Rejoignez l'Association d'Entraide Madagascar
+          Association d'Entraide Madagascar
           {'\n'}
-          Ensemble, avançons !
+          Content de vous revoir !
         </Text>
       </View>
 
       {/* Introduction */}
       <View style={styles.introduction}>
         <Ionicons
-          name="people-outline"
+          name="key-outline"
           size={24}
           color="#079DA6"
         />
 
         <Text style={styles.texteIntroduction}>
-          Remplissez ce formulaire pour soumettre votre demande
-          d'adhésion à notre communauté solidaire.
+          Connectez-vous à votre espace personnel pour accéder à vos services et suivre vos demandes.
         </Text>
       </View>
 
       {/* Formulaire */}
       <View style={styles.carte}>
         <Text style={styles.titreSection}>
-          Informations personnelles
+          Identifiants
         </Text>
 
         <Text style={styles.label}>
-          Nom *
-        </Text>
-        <TextInput
-          style={styles.champ}
-          placeholder="Votre nom"
-          placeholderTextColor="#8994A5"
-          value={nom}
-          onChangeText={setNom}
-          autoCapitalize="words"
-        />
-
-        <Text style={styles.label}>
-          Prénom *
-        </Text>
-        <TextInput
-          style={styles.champ}
-          placeholder="Votre prénom"
-          placeholderTextColor="#8994A5"
-          value={prenom}
-          onChangeText={setPrenom}
-          autoCapitalize="words"
-        />
-
-        <Text style={styles.label}>
-          Adresse email *
+          Adresse email
         </Text>
         <TextInput
           style={styles.champ}
@@ -176,123 +126,78 @@ export default function Inscription() {
         />
 
         <Text style={styles.label}>
-          Numéro de téléphone *
+          Mot de passe
         </Text>
-        <TextInput
-          style={styles.champ}
-          placeholder="Ex. : 034 00 000 00"
-          placeholderTextColor="#8994A5"
-          value={telephone}
-          onChangeText={setTelephone}
-          keyboardType="phone-pad"
-        />
-
-        {/* Choix du profil */}
-        <Text style={styles.label}>
-          Votre profil *
-        </Text>
-
-        <View style={styles.profils}>
-          {[
-            'Étudiant',
-            'Professionnel',
-            'Particulier',
-          ].map((item) => (
-            <Pressable
-              key={item}
-              style={[
-                styles.optionProfil,
-                profil === item && styles.optionSelectionnee,
-              ]}
-              onPress={() => choisirProfil(item)}
-            >
-              <Ionicons
-                name={
-                  profil === item
-                    ? 'radio-button-on'
-                    : 'radio-button-off'
-                }
-                size={19}
-                color={profil === item ? '#079DA6' : '#8994A5'}
-              />
-
-              <Text
-                style={[
-                  styles.texteProfil,
-                  profil === item && styles.texteProfilSelectionne,
-                ]}
-              >
-                {item}
-              </Text>
-            </Pressable>
-          ))}
+        <View style={styles.conteneurMotDePasse}>
+          <TextInput
+            style={styles.champMotDePasse}
+            placeholder="Votre mot de passe"
+            placeholderTextColor="#8994A5"
+            value={motDePasse}
+            onChangeText={setMotDePasse}
+            secureTextEntry={masquerMotDePasse}
+            autoCapitalize="none"
+          />
+          <Pressable
+            onPress={() => setMasquerMotDePasse(!masquerMotDePasse)}
+            style={styles.iconeOeil}
+          >
+            <Ionicons
+              name={masquerMotDePasse ? 'eye-off-outline' : 'eye-outline'}
+              size={22}
+              color="#8994A5"
+            />
+          </Pressable>
         </View>
 
-        <Text style={styles.label}>
-          Adresse ou ville
-        </Text>
-        <TextInput
-          style={styles.champ}
-          placeholder="Votre ville ou votre adresse"
-          placeholderTextColor="#8994A5"
-          value={adresse}
-          onChangeText={setAdresse}
-        />
+        {/* Option Se souvenir de moi */}
+        <View style={styles.ligneOption}>
+          <Pressable
+            style={styles.ligneConsentement}
+            onPress={() => setSeSouvenir(!seSouvenir)}
+          >
+            <Ionicons
+              name={seSouvenir ? 'checkbox' : 'square-outline'}
+              size={22}
+              color={seSouvenir ? '#079DA6' : '#8994A5'}
+            />
+            <Text style={styles.texteConsentement}>Se souvenir de moi</Text>
+          </Pressable>
 
-        <Text style={styles.label}>
-          Pourquoi souhaitez-vous nous rejoindre ?
-        </Text>
-        <TextInput
-          style={[styles.champ, styles.champMultiligne]}
-          placeholder="Parlez-nous de vos motivations..."
-          placeholderTextColor="#8994A5"
-          value={motivation}
-          onChangeText={setMotivation}
-          multiline
-          textAlignVertical="top"
-        />
+          <Pressable onPress={() => Alert.alert('Information', 'Fonctionnalité de réinitialisation bientôt disponible.')}>
+            <Text style={styles.texteOublie}>Mot de passe oublié ?</Text>
+          </Pressable>
+        </View>
 
-        {/* Consentement */}
+        {/* Bouton de connexion */}
         <Pressable
-          style={styles.ligneConsentement}
-          onPress={() => setAccepte(!accepte)}
+          style={[styles.bouton, chargement && styles.boutonDesactive]}
+          onPress={envoyerConnexion}
+          disabled={chargement}
         >
-          <Ionicons
-            name={
-              accepte
-                ? 'checkbox'
-                : 'square-outline'
-            }
-            size={24}
-            color={accepte ? '#079DA6' : '#8994A5'}
-          />
-
-          <Text style={styles.texteConsentement}>
-            Je confirme l'exactitude des informations fournies
-            et j'accepte que mes données soient utilisées pour
-            traiter ma demande d'adhésion. *
-          </Text>
+          {chargement ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <>
+              <Text style={styles.texteBouton}>
+                Se connecter
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={21}
+                color="#FFFFFF"
+              />
+            </>
+          )}
         </Pressable>
 
-        {/* Bouton d'inscription */}
-        <Pressable
-          style={styles.bouton}
-          onPress={envoyerInscription}
-        >
-          <Text style={styles.texteBouton}>
-            Soumettre ma demande
-          </Text>
-
-          <Ionicons
-            name="arrow-forward"
-            size={21}
-            color="#FFFFFF"
-          />
-        </Pressable>
-
-        <Text style={styles.note}>
-          * Les champs marqués d'un astérisque sont obligatoires.
-        </Text>
+        {/* Lien vers inscription */}
+        <View style={styles.ligneInscription}>
+          <Text style={styles.texteQuestion}>Vous n'avez pas de compte ?</Text>
+          <Pressable onPress={() => router.push('/Inscription')}>
+            <Text style={styles.texteLienInscription}> S'inscrire</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Retour à l'accueil */}
@@ -305,7 +210,6 @@ export default function Inscription() {
           size={19}
           color="#079DA6"
         />
-
         <Text style={styles.texteRetour}>
           Retour à l'accueil
         </Text>
@@ -419,48 +323,45 @@ const styles = StyleSheet.create({
     color: '#183568',
     marginBottom: 12,
   },
-  profils: {
-    gap: 10,
-    marginBottom: 12,
-  },
-  optionProfil: {
+  conteneurMotDePasse: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    padding: 13,
+    backgroundColor: '#F7FAFC',
     borderWidth: 1,
     borderColor: '#DCE5ED',
     borderRadius: 10,
-    backgroundColor: '#F7FAFC',
+    marginBottom: 12,
   },
-  optionSelectionnee: {
-    borderColor: '#079DA6',
-    backgroundColor: '#E5F7F7',
-  },
-  texteProfil: {
+  champMotDePasse: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     fontSize: 14,
-    color: '#526078',
+    color: '#183568',
   },
-  texteProfilSelectionne: {
-    color: '#079DA6',
-    fontWeight: 'bold',
+  iconeOeil: {
+    paddingHorizontal: 12,
   },
-  champMultiligne: {
-    height: 110,
-    paddingTop: 14,
+  ligneOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 20,
   },
   ligneConsentement: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-    marginTop: 8,
-    marginBottom: 20,
+    alignItems: 'center',
+    gap: 8,
   },
   texteConsentement: {
-    flex: 1,
-    fontSize: 12,
-    lineHeight: 19,
+    fontSize: 13,
     color: '#526078',
+  },
+  texteOublie: {
+    fontSize: 13,
+    color: '#079DA6',
+    fontWeight: '600',
   },
   bouton: {
     backgroundColor: '#079DA6',
@@ -472,16 +373,28 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 5,
   },
+  boutonDesactive: {
+    opacity: 0.7,
+  },
   texteBouton: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: 'bold',
   },
-  note: {
-    fontSize: 11,
-    color: '#8994A5',
-    marginTop: 15,
-    lineHeight: 17,
+  ligneInscription: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  texteQuestion: {
+    fontSize: 13,
+    color: '#526078',
+  },
+  texteLienInscription: {
+    fontSize: 13,
+    color: '#079DA6',
+    fontWeight: 'bold',
   },
   boutonRetour: {
     flexDirection: 'row',
