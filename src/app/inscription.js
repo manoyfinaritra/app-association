@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import api from './api/api';
+import api from '../components/api/api';
 export default function Inscription() {
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
