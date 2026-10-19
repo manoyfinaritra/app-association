@@ -84,13 +84,13 @@ function TabLayout() {
       />
 
       <Tabs.Screen
-        name="inscription"
+        name="connexion"
         options={{
-          title: t('registrationTab'),
-          tabBarLabel: t('registrationTab'),
+          title: t('connexion'),
+          tabBarLabel: t('connexion'),
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons
-              name={focused ? 'person-add' : 'person-add-outline'}
+              name={focused ? 'person' : 'person-outline'}
               color={color}
               size={size}
             />
