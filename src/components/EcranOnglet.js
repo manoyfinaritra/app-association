@@ -8,7 +8,7 @@ export default function EcranOnglet(props) {
       <View style={styles.entete}>
         <View>
           <Text style={styles.logo} accessibilityLabel="AEM">AEM</Text>
-          <Text style={styles.sousTitre}>Association-d'Étudiants-Madagascar</Text>
+          <Text style={styles.sousTitre}>Association Étudiants-Madagascar</Text>
         </View>
 
         <TouchableOpacity style={styles.boutonConnexion}>
