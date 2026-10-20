@@ -1,16 +1,22 @@
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../../components/header';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function ClientLayout() {
   const insets = useSafeAreaInsets();
 
+  const { utilisateur } = useAuth();
+
+  if (!utilisateur) {
+    return <Redirect href="/(public)/connexion" />;
+  }
   return (
     <Tabs
       initialRouteName="dashboard"
       screenOptions={{
-       headerShown: true,
+        headerShown: true,
         header: () => <Header />,
 
         tabBarActiveTintColor: '#079DA6',
@@ -39,7 +45,7 @@ export default function ClientLayout() {
         }}
       />
 
-     
+
       <Tabs.Screen
         name="document"
         options={{
@@ -80,7 +86,7 @@ export default function ClientLayout() {
         }}
       />
 
-       <Tabs.Screen
+      <Tabs.Screen
         name="profil"
         options={{
           title: 'Profil',
