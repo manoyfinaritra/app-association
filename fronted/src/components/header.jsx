@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Header() {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.entete}>
@@ -96,13 +96,4 @@ const styles = StyleSheet.create({
   langTextActive: {
     color: '#FFF',
   },
-  logoContainer :{
-    flexDirection : 'row',
-   
-    alignItems : 'center',
-    width : 50,
-    height : 50,
-    gap : 6,
-
-   }
 });

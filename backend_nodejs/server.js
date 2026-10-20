@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import http from 'node:http';
+import { variantesTelephone } from './telephone.js';
+import { creerSession, traiterEspaceClient } from './espaceClient.js';
 import {
   createHash,
   createCipheriv,
@@ -62,27 +64,6 @@ function repondre(res, statut, message, informations = {}) {
 // 3. Retrouver les formats possibles du téléphone
 // --------------------------------------------------
 
-function variantesTelephone(telephone) {
-  const numero = telephone.replace(/\s+/g, '');
-
-  // Exemple :
-  // +261341234567 devient 0341234567.
-  const international = numero.match(/^\+2610?(\d{8,9})$/);
-
-  const numeroLocal = international
-    ? '0' + international[1]
-    : numero;
-
-  const variantes = new Set([telephone, numero, numeroLocal]);
-  const local = numeroLocal.match(/^0(\d{8,9})$/);
-
-  if (local) {
-    variantes.add('+261' + local[1]);
-    variantes.add('+261 ' + local[1]);
-  }
-
-  return [...variantes];
-}
 
 // --------------------------------------------------
 // 4. Reproduire le chiffrement des anciens comptes PHP
@@ -183,13 +164,7 @@ async function connecterUtilisateur(data, res) {
 
   const sqlUtilisateur = `
     SELECT
-      aem_id_user,
-      aem_phone_number,
-      aem_user_email,
-      aem_name,
-      aem_first_name,
-      aem_user_password,
-      aem_password_is_temporary
+      *
     FROM aem_user
     WHERE aem_phone_number IN (${placeholders})
     LIMIT 2
@@ -252,6 +227,7 @@ async function connecterUtilisateur(data, res) {
 
   // Tout est correct : on renvoie seulement les informations utiles.
   repondre(res, 200, 'Connexion réussie !', {
+    jeton: creerSession(utilisateur.aem_id_user),
     requires_password_change:
       Number(utilisateur.aem_password_is_temporary) === 1,
 
@@ -261,6 +237,13 @@ async function connecterUtilisateur(data, res) {
       email: utilisateur.aem_user_email,
       nom: utilisateur.aem_name,
       prenom: utilisateur.aem_first_name,
+      photo : utilisateur.aem_profile_picture,
+      lieu_de_naissance : utilisateur.aem_place_of_birth,
+      date_de_naissance : utilisateur.aem_date_of_birth,
+      sexe : utilisateur.aem_sex,
+      state : utilisateur.aem_state,
+      ville : utilisateur.aem_city,
+      photo_cin : utilisateur.aem_identity_photo
     },
   });
 }
@@ -282,13 +265,21 @@ const server = http.createServer((req, res) => {
 
   if (origine) {
     res.setHeader('Access-Control-Allow-Origin', origine);
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   }
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
+    return;
+  }
+
+  if (req.url?.startsWith('/client/')) {
+    traiterEspaceClient(req, res, db, repondre).catch((erreur) => {
+      console.error('Erreur espace membre :', erreur.code || erreur.name);
+      repondre(res, 500, 'Impossible de charger les données. Réessayez plus tard.');
+    });
     return;
   }
 

@@ -8,6 +8,9 @@
   },
   "include": [
     "App.js",
-    "src/**/*.js"
-, "../backend_nodejs/genererHash.js"  ]
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.d.ts",
+    "../backend_nodejs/genererHash.js"
+  ]
 }

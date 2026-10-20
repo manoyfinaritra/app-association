@@ -7,6 +7,7 @@ import { useLanguage } from '../../context/LanguageContext';
 export default function Avantages() {
   const { t } = useLanguage();
 
+  /** @type {{ icone: import('react').ComponentProps<typeof Ionicons>['name'], titre: string, description: string }[]} */
   const avantages = [
     {
       icone: 'school-outline',

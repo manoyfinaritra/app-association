@@ -1,19 +1,14 @@
-import axios from 'axios';
+import { create } from 'axios';
 import Constants from 'expo-constants';
 
-// ohatra : "192.168.1.100:8081"
-const adresseExpo = Constants.expoConfig?.hostUri;
+// En développement, le backend utilise la même machine que le serveur Expo.
+// Pour un téléphone ou une version publiée, définir EXPO_PUBLIC_API_URL.
+const hoteExpo = Constants.expoConfig?.hostUri;
+const adresse = new URL(`http://${hoteExpo || 'localhost'}`);
+adresse.port = '3000';
 
-if (!adresseExpo) {
-  throw new Error("Impossible de récupérer l'adresse du serveur Expo.");
-}
-
-
-const adresseBackend = new URL(`http://${adresseExpo}`);
-adresseBackend.port = '3000';
-
-const api = axios.create({
-  baseURL: adresseBackend.origin,
+const api = create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL || adresse.origin,
   timeout: 10000,
 });
 

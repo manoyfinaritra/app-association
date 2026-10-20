@@ -54,7 +54,7 @@ export default function Connexion() {
 
       const response = await api.post('/connexion', data);
       if (response.status === 200) {
-        connecter(response.data.utilisateur);
+        connecter(response.data.utilisateur, response.data.jeton);
         router.replace('/(client)/dashboard');
         setTelephone('');
         setMotDePasse('');

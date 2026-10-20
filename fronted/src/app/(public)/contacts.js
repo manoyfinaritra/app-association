@@ -34,7 +34,7 @@ export default function Contact() {
   const ouvrirLien = async (url) => {
     try {
       await Linking.openURL(url);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert(
         'Impossible d’ouvrir le lien',
         'Vérifiez que l’application nécessaire est installée.'
@@ -324,9 +324,9 @@ export default function Contact() {
         </Pressable>
 
         <Text style={styles.noteFormulaire}>
-          Votre application de messagerie s'ouvrira avec
+          Votre application de messagerie s&apos;ouvrira avec
           le message prérempli. Vous devrez confirmer
-          l'envoi depuis cette application.
+          l&apos;envoi depuis cette application.
         </Text>
       </View>
 

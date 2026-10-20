@@ -1,17 +1,25 @@
-import { createContext, useContext, useState } from 'react';
+import api from '../components/api/api';
+import { createContext, useCallback, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [utilisateur, setUtilisateur] = useState(null);
 
-  function connecter(infosUtilisateur) {
+  function connecter(infosUtilisateur, jeton) {
+    api.defaults.headers.common.Authorization = `Bearer ${jeton}`;
     setUtilisateur(infosUtilisateur);
   }
 
-  function deconnecter() {
+  const deconnecter = useCallback(() => {
+    api.post('/client/deconnexion').catch(() => {});
+    delete api.defaults.headers.common.Authorization;
     setUtilisateur(null);
-  }
+  }, []);
+
+  const actualiserUtilisateur = useCallback((informations) => {
+    setUtilisateur(ancien => ancien ? { ...ancien, ...informations } : null);
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -19,6 +27,7 @@ export function AuthProvider({ children }) {
         utilisateur,
         connecter,
         deconnecter,
+        actualiserUtilisateur,
       }}
     >
       {children}
