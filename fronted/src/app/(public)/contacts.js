@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Contact() {
   const { t } = useLanguage();

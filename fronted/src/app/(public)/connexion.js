@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { isAxiosError } from 'axios';
-import api from '../components/api/api';
+import api from '../../components/api/api';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 export default function Connexion() {
-  const [email, setEmail] = useState('');
+  const [telephone, setTelephone] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [masquerMotDePasse, setMasquerMotDePasse] = useState(true);
   const [seSouvenir, setSeSouvenir] = useState(false);
@@ -25,7 +25,7 @@ export default function Connexion() {
   const envoyerConnexion = async () => {
     setMessage('');
 
-    if (!email.trim() || !motDePasse) {
+    if (!telephone.trim() || !motDePasse) {
       Alert.alert(
         'Champs manquants',
         'Veuillez remplir tous les champs avant de continuer.'
@@ -33,11 +33,11 @@ export default function Connexion() {
       return;
     }
 
-    const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-    if (!emailValide) {
+    const telephoneValide = /^\+?[0-9]{7,15}$/.test(telephone.trim());
+    if (!telephoneValide) {
       Alert.alert(
-        'Email invalide',
-        'Veuillez saisir une adresse email valide.'
+        'Numéro invalide',
+        'Veuillez saisir un numéro de téléphone de 7 à 15 chiffres.'
       );
       return;
     }
@@ -46,15 +46,14 @@ export default function Connexion() {
 
     try {
       const data = {
-        email: email.trim(),
+        telephone: telephone.trim(),
         motDePasse,
       };
 
       const response = await api.post('/connexion', data);
       if (response.status === 200) {
-        router.replace('/dashboard');
-
-        setEmail('');
+        router.replace('/(client)/dashboard');
+        setTelephone('');
         setMotDePasse('');
         setSeSouvenir(false);
       }
@@ -122,15 +121,16 @@ export default function Connexion() {
         )}
 
         <Text style={styles.label}>
-          Adresse email
+          Numéro de téléphone
         </Text>
         <TextInput
           style={styles.champ}
-          placeholder="exemple@email.com"
+          placeholder="0341234567"
           placeholderTextColor="#8994A5"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+          value={telephone}
+          onChangeText={setTelephone}
+          keyboardType="phone-pad"
+          inputMode="tel"
           autoCapitalize="none"
           autoCorrect={false}
         />

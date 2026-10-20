@@ -83,16 +83,16 @@ const server = http.createServer((req, res) => {
             return;
         }
 
-        const email = typeof data?.email === 'string' ? data.email.trim() : '';
+        const telephone = typeof data?.telephone === 'string' ? data.telephone.trim() : '';
         const password = data?.motDePasse;
-        const emailValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        if (!emailValide || typeof password !== 'string' || password.length === 0) {
-            repondre(400, 'Veuillez saisir un email valide et un mot de passe.');
+        const telephoneValide = /^\+?[0-9]{7,15}$/.test(telephone);
+        if (!telephoneValide || typeof password !== 'string' || password.length === 0) {
+            repondre(400, 'Veuillez saisir un numéro de téléphone valide et un mot de passe.');
             return;
         }
 
-        const sql = 'SELECT aem_id_user FROM aem_user WHERE aem_user_email = ? AND aem_user_password = ? LIMIT 1';
-        connection.query(sql, [email, password], (err, results) => {
+        const sql = 'SELECT aem_id_user FROM aem_user WHERE aem_phone_number = ? AND aem_user_password = ? LIMIT 1';
+        connection.query(sql, [telephone, password], (err, results) => {
             if (err) {
                 console.error('Erreur SQL :', err.code);
                 repondre(500, 'Erreur interne du serveur.');
@@ -102,7 +102,7 @@ const server = http.createServer((req, res) => {
             if (results.length > 0) {
                 repondre(200, 'Connexion réussie !');
             } else {
-                repondre(401, 'Email ou mot de passe incorrect.');
+                repondre(401, 'Numéro de téléphone ou mot de passe incorrect.');
             }
         });
     });

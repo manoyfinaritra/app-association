@@ -5,7 +5,7 @@ import React from 'react';
  
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Accueil() {
   const { t } = useLanguage();
