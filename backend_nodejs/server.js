@@ -23,9 +23,16 @@ const originesAutorisees = [
 ];
 
 const server = http.createServer((req, res) => {
-    function repondre(statut, message) {
-        res.writeHead(statut, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ message }));
+    function repondre(statut, message, informations = {}) {
+        res.writeHead(statut, {
+            'Content-Type': 'application/json; charset=utf-8',
+        });
+
+        res.end(JSON.stringify({
+            ...informations,
+            success: statut >= 200 && statut < 300,
+            message,
+        }));
     }
 
     const origine = req.headers.origin;
@@ -91,7 +98,7 @@ const server = http.createServer((req, res) => {
             return;
         }
 
-        const sql = 'SELECT aem_id_user FROM aem_user WHERE aem_phone_number = ? AND aem_user_password = ? LIMIT 1';
+        const sql = 'SELECT * FROM aem_user WHERE aem_phone_number = ? AND aem_user_password = ? LIMIT 1';
         connection.query(sql, [telephone, password], (err, results) => {
             if (err) {
                 console.error('Erreur SQL :', err.code);
@@ -100,9 +107,21 @@ const server = http.createServer((req, res) => {
             }
 
             if (results.length > 0) {
-                repondre(200, 'Connexion réussie !');
+               
+                repondre(200, 'Connexion réussie !', {
+                    utilisateur: {
+                        id: results[0].aem_id_user,
+                        telephone: results[0].aem_phone_number,
+                        email: results[0].aem_user_email,
+                        nom: results[0].aem_name,
+                        prenom: results[0].aem_first_name,
+                    },
+                });
             } else {
-                repondre(401, 'Numéro de téléphone ou mot de passe incorrect.');
+                repondre(
+                    401,
+                    'Numéro de téléphone ou mot de passe incorrect.'
+                );
             }
         });
     });

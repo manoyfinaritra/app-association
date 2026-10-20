@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { isAxiosError } from 'axios';
 import api from '../../components/api/api';
+import {useAuth} from '../../context/AuthContext';
 import {
   View,
   Text,
@@ -21,6 +22,7 @@ export default function Connexion() {
   const [seSouvenir, setSeSouvenir] = useState(false);
   const [chargement, setChargement] = useState(false);
   const [message, setMessage] = useState('');
+  const { connecter } = useAuth();
 
   const envoyerConnexion = async () => {
     setMessage('');
@@ -52,6 +54,7 @@ export default function Connexion() {
 
       const response = await api.post('/connexion', data);
       if (response.status === 200) {
+        connecter(response.data.utilisateur);
         router.replace('/(client)/dashboard');
         setTelephone('');
         setMotDePasse('');
