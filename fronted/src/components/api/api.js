@@ -1,7 +1,20 @@
 import axios from 'axios';
- const api = axios.create({
-  baseURL: 'http://192.168.1.100:3000', 
-  timeout: 10000,
+import Constants from 'expo-constants';
 
-})
+// ohatra : "192.168.1.100:8081"
+const adresseExpo = Constants.expoConfig?.hostUri;
+
+if (!adresseExpo) {
+  throw new Error("Impossible de récupérer l'adresse du serveur Expo.");
+}
+
+
+const adresseBackend = new URL(`http://${adresseExpo}`);
+adresseBackend.port = '3000';
+
+const api = axios.create({
+  baseURL: adresseBackend.origin,
+  timeout: 10000,
+});
+
 export default api;
