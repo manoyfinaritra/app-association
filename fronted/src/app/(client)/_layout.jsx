@@ -19,7 +19,7 @@ export default function ClientLayout() {
         headerShown: true,
         header: () => <Header />,
 
-        tabBarActiveTintColor: '#079DA6',
+        tabBarActiveTintColor: '#ccc2c0',
         tabBarInactiveTintColor: '#64748b',
         tabBarHideOnKeyboard: true,
 
@@ -27,10 +27,10 @@ export default function ClientLayout() {
           height: 65 + insets.bottom,
           paddingTop: 5,
           paddingBottom: 5 + insets.bottom,
-          borderRadius : 50,
-          marginHorizontal : 10,
+          borderRadius : 15,
+          marginHorizontal : 5,
           marginBottom : 10,
-          backgroundColor : '#effafa',
+          backgroundColor : '#fff',
          
 
         },
