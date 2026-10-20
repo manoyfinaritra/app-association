@@ -19,7 +19,7 @@ export default function ClientLayout() {
         headerShown: true,
         header: () => <Header />,
 
-        tabBarActiveTintColor: '#ccc2c0',
+        tabBarActiveTintColor: '#0c9e79',
         tabBarInactiveTintColor: '#64748b',
         tabBarHideOnKeyboard: true,
 
