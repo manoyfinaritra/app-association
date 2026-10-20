@@ -22,6 +22,7 @@ export default function PublicLayout() {
         tabBarActiveBackgroundColor: '#effafa',
         tabBarLabelPosition: 'below-icon',
 
+
         tabBarStyle: [
           styles.barre,
           {
@@ -104,6 +105,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingTop: 5,
     elevation: 8,
+
+    borderRadius: 15,
+    marginHorizontal: 10,
+    marginBottom: 10,
+
   },
 
   onglet: {

@@ -27,7 +27,12 @@ export default function ClientLayout() {
           height: 65 + insets.bottom,
           paddingTop: 5,
           paddingBottom: 5 + insets.bottom,
-          backgroundColor: '#FFFFFF',
+          borderRadius : 50,
+          marginHorizontal : 10,
+          marginBottom : 10,
+          backgroundColor : '#effafa',
+         
+
         },
       }}
     >
