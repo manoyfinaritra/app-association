@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Header from '../../components/header';
 
 export default function ClientLayout() {
   const insets = useSafeAreaInsets();
@@ -9,11 +10,8 @@ export default function ClientLayout() {
     <Tabs
       initialRouteName="dashboard"
       screenOptions={{
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: '#073B5C',
-        },
-        headerTintColor: '#FFFFFF',
+       headerShown: true,
+        header: () => <Header />,
 
         tabBarActiveTintColor: '#079DA6',
         tabBarInactiveTintColor: '#64748b',
@@ -41,19 +39,7 @@ export default function ClientLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="profil"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="person-outline"
-              color={color}
-              size={size}
-            />
-          ),
-        }}
-      />
+     
       <Tabs.Screen
         name="document"
         options={{
@@ -87,6 +73,20 @@ export default function ClientLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons
               name="calendar-outline"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+
+       <Tabs.Screen
+        name="profil"
+        options={{
+          title: 'Profil',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="person-outline"
               color={color}
               size={size}
             />
