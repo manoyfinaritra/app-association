@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { isAxiosError } from 'axios';
 import api from '../../components/api/api';
-import {useAuth} from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   View,
   Text,
@@ -117,11 +117,9 @@ export default function Connexion() {
         <Text style={styles.titreSection}>
           Identifiants
         </Text>
-        {message && (
-          <Text style={styles.message}>
-            {message}
-          </Text>
-        )}
+        {message ? (
+          <Text style={styles.message}>{message}</Text>
+        ) : null}
 
         <Text style={styles.label}>
           Numéro de téléphone
