@@ -9,5 +9,5 @@
   "include": [
     "App.js",
     "src/**/*.js"
-  ]
+, "../backend_nodejs/genererHash.js"  ]
 }
