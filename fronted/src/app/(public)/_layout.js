@@ -1,16 +1,12 @@
-
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Header from '../../components/header';
-import {
-  LanguageProvider,
-  useLanguage,
-} from '../../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 
-function TabLayout() {
+export default function PublicLayout() {
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
 
@@ -97,19 +93,7 @@ function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="dashboard"
-        options={{ title: 'Tableau de bord', href: null }}
-      />
     </Tabs>
-  );
-}
-
-export default function RootLayout() {
-  return (
-    <LanguageProvider>
-      <TabLayout />
-    </LanguageProvider>
   );
 }
 
