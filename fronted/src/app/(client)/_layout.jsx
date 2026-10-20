@@ -20,6 +20,8 @@ export default function ClientLayout() {
         header: () => <Header />,
 
         tabBarActiveTintColor: '#0c9e79',
+      tabBarActiveBackgroundColor: '#effafa',
+     
         tabBarInactiveTintColor: '#64748b',
         tabBarHideOnKeyboard: true,
 
