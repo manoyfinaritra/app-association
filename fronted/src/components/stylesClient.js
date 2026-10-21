@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-// Quelques styles partagés pour garder les écrans courts et cohérents.
 export default StyleSheet.create({
   carte: { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', padding: 16, marginBottom: 12, gap: 8 },
   titre: { fontSize: 18, fontWeight: '600', color: '#073B5C' },
