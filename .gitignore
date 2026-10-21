@@ -39,3 +39,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+/fronted/ios
+/fronted/android
+
+# Identifiants du backend
+backend_nodejs/.env
