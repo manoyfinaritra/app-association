@@ -1,301 +1,528 @@
-// app/client/evenement.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
-  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from 'expo-router';
 
-// Génération des jours pour le calendrier d'Octobre 2026 (qui commence un jeudi)
-// 1er Oct 2026 = Jeudi. Le mois a 31 jours.
-const JOURS_SEMAINE = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
-const CALENDRIER_OCTOBRE_2026 = [
-  // Semaine 1 (du 28 sept au 4 oct)
-  { jour: 28, mois: 'prev' }, { jour: 29, mois: 'prev' }, { jour: 30, mois: 'prev' }, 
-  { jour: 1, mois: 'current' }, { jour: 2, mois: 'current' }, { jour: 3, mois: 'current' }, { jour: 4, mois: 'current' },
-  // Semaine 2
-  { jour: 5, mois: 'current' }, { jour: 6, mois: 'current' }, { jour: 7, mois: 'current' }, 
-  { jour: 8, mois: 'current' }, { jour: 9, mois: 'current' }, { jour: 10, mois: 'current' }, { jour: 11, mois: 'current' },
-  // Semaine 3
-  { jour: 12, mois: 'current' }, { jour: 13, mois: 'current' }, { jour: 14, mois: 'current' }, 
-  { jour: 15, mois: 'current' }, { jour: 16, mois: 'current' }, { jour: 17, mois: 'current' }, { jour: 18, mois: 'current' },
-  // Semaine 4
-  { jour: 19, mois: 'current' }, { jour: 20, mois: 'current' }, { jour: 21, mois: 'current', aujourdhui: true }, 
-  { jour: 22, mois: 'current' }, { jour: 23, mois: 'current' }, { jour: 24, mois: 'current' }, { jour: 25, mois: 'current' },
-  // Semaine 5
-  { jour: 26, mois: 'current' }, { jour: 27, mois: 'current' }, { jour: 28, mois: 'current' }, 
-  { jour: 29, mois: 'current' }, { jour: 30, mois: 'current' }, { jour: 31, mois: 'current' }, { jour: 1, mois: 'next' },
-  // Semaine 6
-  { jour: 2, mois: 'next' }, { jour: 3, mois: 'next' }, { jour: 4, mois: 'next' }, 
-  { jour: 5, mois: 'next' }, { jour: 6, mois: 'next' }, { jour: 7, mois: 'next' }, { jour: 8, mois: 'next' },
+import api from '../../components/api/api';
+
+// Convertir une date en YYYY-MM-DD à Madagascar.
+function cleDate(valeur) {
+  if (!valeur) return '';
+
+  // Une date SQL sans heure est conservée telle quelle.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(valeur))) {
+    return String(valeur);
+  }
+
+  const date = new Date(valeur);
+
+  if (Number.isNaN(date.getTime())) return '';
+
+  const parties = new Intl.DateTimeFormat('fr-FR', {
+    timeZone: 'Indian/Antananarivo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+
+  const lire = (type) =>
+    parties.find((partie) => partie.type === type)?.value;
+
+  return `${lire('year')}-${lire('month')}-${lire('day')}`;
+}
+
+function formaterDate(valeur) {
+  const cle = cleDate(valeur);
+
+  if (!cle) return 'Date non renseignée';
+
+  const [annee, mois, jour] = cle.split('-');
+
+  return `${jour}/${mois}/${annee}`;
+}
+
+// Ce statut est calculé avec la date.
+// Il ne correspond pas à une validation en base.
+function statutEvenement(date, aujourdHui) {
+  const cle = cleDate(date);
+
+  if (!cle) return 'inconnu';
+  if (cle === aujourdHui) return 'aujourdhui';
+  if (cle > aujourdHui) return 'avenir';
+
+  return 'passe';
+}
+
+const statuts = {
+  avenir: {
+    texte: 'À venir',
+    couleur: '#079DA6',
+    fond: '#E5F7F7',
+  },
+  aujourdhui: {
+    texte: "Aujourd’hui",
+    couleur: '#B45309',
+    fond: '#FFF4DE',
+  },
+  passe: {
+    texte: 'Passé',
+    couleur: '#64748B',
+    fond: '#F1F5F9',
+  },
+  inconnu: {
+    texte: 'Date inconnue',
+    couleur: '#64748B',
+    fond: '#F1F5F9',
+  },
+};
+
+const filtres = [
+  { valeur: 'tous', titre: 'Tous' },
+  { valeur: 'avenir', titre: 'À venir' },
+  { valeur: 'aujourdhui', titre: "Aujourd’hui" },
+  { valeur: 'passe', titre: 'Passés' },
 ];
 
 export default function EvenementScreen() {
-  const navigation = useNavigation();
-  const [vue, setVue] = useState('mois'); // 'mois' ou 'liste'
+  const [evenements, setEvenements] = useState([]);
+  const [recherche, setRecherche] = useState('');
+  const [filtre, setFiltre] = useState('tous');
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState('');
+  const [suite, setSuite] = useState(false);
+
+  const aujourdHui = cleDate(new Date());
+
+  async function chargerEvenements() {
+    setChargement(true);
+    setErreur('');
+
+    try {
+      // api doit déjà transmettre le jeton de connexion.
+      const response = await api.get('/client/evenements');
+      const donnees = response.data?.donnees;
+
+      if (!Array.isArray(donnees)) {
+        setErreur('Le serveur a renvoyé des données inattendues.');
+        return;
+      }
+
+      setEvenements(donnees);
+      setSuite(response.data.suite === true);
+    } catch (error) {
+      const messageServeur = error.response?.data?.message;
+
+      setErreur(
+        typeof messageServeur === 'string'
+          ? messageServeur
+          : 'Impossible de charger les événements.'
+      );
+    } finally {
+      setChargement(false);
+    }
+  }
+
+  useEffect(() => {
+    chargerEvenements();
+  }, []);
+
+  const evenementsFiltres = evenements.filter((evenement) => {
+    const texte = [
+      evenement.titre,
+      evenement.lieu,
+      evenement.description,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    const correspondRecherche = texte.includes(
+      recherche.trim().toLowerCase()
+    );
+
+    const correspondFiltre =
+      filtre === 'tous' ||
+      statutEvenement(evenement.date, aujourdHui) === filtre;
+
+    return correspondRecherche && correspondFiltre;
+  });
 
   return (
-    <View style={styles.container}>
-      {/* Header personnalisé */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
-          <Ionicons name="menu" size={28} color="#073B5C" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Événements</Text>
-        <View style={{ width: 28 }} />
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contenu}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+    >
+      <View style={styles.iconeEntete}>
+        <Ionicons
+          name="calendar-outline"
+          size={30}
+          color="#079DA6"
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        
-        {/* Titre et Badge */}
-        <View style={styles.titleSection}>
-          <View>
-            <Text style={styles.title}>Événements</Text>
-            <Text style={styles.subtitle}>Calendrier des événements de l'association.</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>2 événements</Text>
-          </View>
-        </View>
+      <Text style={styles.titre}>Événements</Text>
 
-        {/* Barre de recherche et Filtres (scrollables horizontalement) */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll} contentContainerStyle={styles.filtersContainer}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#8994A5" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Thème, lieu, description..."
-              placeholderTextColor="#8994A5"
+      <Text style={styles.sousTitre}>
+        Retrouvez les rencontres et les activités de l’association.
+      </Text>
+
+      {/* Recherche */}
+      <View style={styles.barreRecherche}>
+        <Ionicons
+          name="search-outline"
+          size={21}
+          color="#8994A5"
+        />
+
+        <TextInput
+          style={styles.champRecherche}
+          placeholder="Thème, lieu, description..."
+          placeholderTextColor="#8994A5"
+          value={recherche}
+          onChangeText={setRecherche}
+          autoCorrect={false}
+          returnKeyType="search"
+          accessibilityLabel="Rechercher un événement"
+        />
+
+        {recherche !== '' && (
+          <Pressable
+            onPress={() => setRecherche('')}
+            accessibilityRole="button"
+            accessibilityLabel="Effacer la recherche"
+            hitSlop={10}
+          >
+            <Ionicons
+              name="close-circle"
+              size={21}
+              color="#8994A5"
             />
-          </View>
-          <TouchableOpacity style={styles.filterDropdown}>
-            <Text style={styles.filterText}>Tous les lieux</Text>
-            <Ionicons name="chevron-down" size={16} color="#526078" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterDropdown}>
-            <Text style={styles.filterText}>Tous les status</Text>
-            <Ionicons name="chevron-down" size={16} color="#526078" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButtonClose}>
-             <Ionicons name="close" size={16} color="#526078" />
-          </TouchableOpacity>
-          <View style={styles.legendContainer}>
-            <View style={[styles.dot, { backgroundColor: '#079DA6' }]} />
-            <Text style={styles.legendText}>À venir</Text>
-            <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
-            <Text style={styles.legendText}>Aujourd'hui</Text>
-            <View style={[styles.dot, { backgroundColor: '#8994A5' }]} />
-            <Text style={styles.legendText}>Passé</Text>
-          </View>
-        </ScrollView>
+          </Pressable>
+        )}
+      </View>
 
-        {/* En-tête du Calendrier (Navigation et Vue Mois/Liste) */}
-        <View style={styles.calendarHeader}>
-          <View style={styles.calendarNav}>
-            <TouchableOpacity style={styles.navButton}>
-              <Ionicons name="chevron-back" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.navButton}>
-              <Ionicons name="chevron-forward" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.todayButton}>
-              <Text style={styles.todayButtonText}>Aujourd'hui</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.monthTitle}>octobre 2026</Text>
-
-          <View style={styles.viewToggle}>
-            <TouchableOpacity 
-              style={[styles.toggleButton, vue === 'mois' && styles.toggleActive]} 
-              onPress={() => setVue('mois')}
+      {/* Filtres */}
+      <View style={styles.filtres}>
+        {filtres.map((element) => (
+          <Pressable
+            key={element.valeur}
+            onPress={() => setFiltre(element.valeur)}
+            accessibilityRole="button"
+            accessibilityState={{
+              selected: filtre === element.valeur,
+            }}
+            style={[
+              styles.boutonFiltre,
+              filtre === element.valeur && styles.filtreActif,
+            ]}
+          >
+            <Text
+              style={[
+                styles.texteFiltre,
+                filtre === element.valeur &&
+                  styles.texteFiltreActif,
+              ]}
             >
-              <Text style={[styles.toggleText, vue === 'mois' && styles.toggleTextActive]}>Mois</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.toggleButton, vue === 'liste' && styles.toggleActive]} 
-              onPress={() => setVue('liste')}
-            >
-              <Text style={[styles.toggleText, vue === 'liste' && styles.toggleTextActive]}>Liste</Text>
-            </TouchableOpacity>
-          </View>
+              {element.titre}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {chargement ? (
+        <View style={styles.zoneMessage}>
+          <ActivityIndicator size="large" color="#079DA6" />
+          <Text style={styles.texteMessage}>
+            Chargement des événements…
+          </Text>
         </View>
+      ) : erreur ? (
+        <View style={styles.zoneMessage}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={36}
+            color="#DC2626"
+          />
 
-        {/* Le Calendrier (Vue Mois) */}
-        {vue === 'mois' && (
-          <View style={styles.calendarContainer}>
-            {/* Jours de la semaine */}
-            <View style={styles.weekDaysRow}>
-              {JOURS_SEMAINE.map((jour, index) => (
-                <View key={index} style={styles.weekDayCell}>
-                  <Text style={styles.weekDayText}>{jour}</Text>
-                </View>
-              ))}
+          <Text style={styles.texteErreur}>{erreur}</Text>
+
+          <Pressable
+            onPress={chargerEvenements}
+            style={styles.boutonReessayer}
+          >
+            <Text style={styles.texteReessayer}>
+              Réessayer
+            </Text>
+          </Pressable>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.compteur}>
+            {evenementsFiltres.length} événement
+            {evenementsFiltres.length > 1 ? 's' : ''} affiché
+            {evenementsFiltres.length > 1 ? 's' : ''}
+          </Text>
+
+          {evenementsFiltres.length === 0 ? (
+            <View style={styles.zoneMessage}>
+              <Ionicons
+                name="calendar-outline"
+                size={45}
+                color="#8994A5"
+              />
+
+              <Text style={styles.texteMessage}>
+                {evenements.length === 0
+                  ? 'Aucun événement disponible pour le moment.'
+                  : 'Aucun événement ne correspond à ces filtres.'}
+              </Text>
             </View>
+          ) : (
+            evenementsFiltres.map((evenement) => {
+              const statut =
+                statuts[statutEvenement(evenement.date, aujourdHui)];
 
-            {/* Grille des jours */}
-            <View style={styles.daysGrid}>
-              {CALENDRIER_OCTOBRE_2026.map((item, index) => (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.dayCell, 
-                    item.mois !== 'current' && styles.dayCellOutside,
-                    item.aujourdhui && styles.dayCellToday
-                  ]}
-                >
-                  <Text style={[
-                    styles.dayText,
-                    item.mois !== 'current' && styles.dayTextOutside,
-                    item.aujourdhui && styles.dayTextToday
-                  ]}>
-                    {item.jour}
-                  </Text>
+              return (
+                <View key={evenement.id} style={styles.carte}>
+                  <View style={styles.enteteCarte}>
+                    <Text style={styles.titreEvenement}>
+                      {evenement.titre}
+                    </Text>
+
+                    <View
+                      style={[
+                        styles.badge,
+                        { backgroundColor: statut.fond },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.texteBadge,
+                          { color: statut.couleur },
+                        ]}
+                      >
+                        {statut.texte}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.detail}>
+                    <Ionicons
+                      name="calendar-outline"
+                      size={19}
+                      color="#079DA6"
+                    />
+                    <Text style={styles.texteDetail}>
+                      {formaterDate(evenement.date)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.detail}>
+                    <Ionicons
+                      name="location-outline"
+                      size={19}
+                      color="#079DA6"
+                    />
+                    <Text style={styles.texteDetail}>
+                      {evenement.lieu || 'Lieu non renseigné'}
+                    </Text>
+                  </View>
+
+                  {Boolean(evenement.description?.trim()) && (
+                    <Text style={styles.description} selectable>
+                      {evenement.description}
+                    </Text>
+                  )}
                 </View>
-              ))}
-            </View>
-          </View>
-        )}
+              );
+            })
+          )}
 
-        {/* Message si vue Liste sélectionnée (vide pour l'instant) */}
-        {vue === 'liste' && (
-           <View style={styles.emptyList}>
-             <Ionicons name="calendar-outline" size={50} color="#DCE5ED" />
-             <Text style={styles.emptyText}>Aucun événement à afficher sous forme de liste.</Text>
-           </View>
-        )}
-
-      </ScrollView>
-    </View>
+          {suite && (
+            <Text style={styles.note}>
+              Seuls les 20 premiers événements sont chargés.
+              La recherche et les filtres portent sur cette liste.
+            </Text>
+          )}
+        </>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F9FA' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
-    paddingBottom: 15,
-    backgroundColor: '#fff',
-    elevation: 2,
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F9FA',
   },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#073B5C' },
-  content: { padding: 15 },
-  
-  titleSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 15,
+  contenu: {
+    padding: 20,
+    paddingBottom: 30,
   },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#073B5C', marginBottom: 5 },
-  subtitle: { fontSize: 13, color: '#526078' },
-  badge: { backgroundColor: '#E5F7F7', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 15 },
-  badgeText: { fontSize: 12, color: '#079DA6', fontWeight: '600' },
-
-  // Filtres
-  filtersScroll: { marginBottom: 15, maxHeight: 50 },
-  filtersContainer: { gap: 10, alignItems: 'center' },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#DCE5ED',
-    height: 40,
-    width: 200,
-  },
-  searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 13, color: '#183568' },
-  filterDropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#DCE5ED',
-    height: 40,
-    gap: 8,
-  },
-  filterText: { fontSize: 13, color: '#526078' },
-  filterButtonClose: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#DCE5ED',
-    height: 40,
+  iconeEntete: {
+    width: 58,
+    height: 58,
+    borderRadius: 16,
+    backgroundColor: '#E5F7F7',
     justifyContent: 'center',
-  },
-  legendContainer: { flexDirection: 'row', alignItems: 'center', gap: 5, marginLeft: 10 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  legendText: { fontSize: 11, color: '#526078', marginRight: 8 },
-
-  // En-tête du calendrier
-  calendarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
-    flexWrap: 'wrap',
+    marginBottom: 14,
+  },
+  titre: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#073B5C',
+    marginBottom: 7,
+  },
+  sousTitre: {
+    fontSize: 14,
+    lineHeight: 21,
+    color: '#526078',
+    marginBottom: 22,
+  },
+  barreRecherche: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
-  },
-  calendarNav: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  navButton: { backgroundColor: '#0F766E', padding: 8, borderRadius: 6 },
-  todayButton: { backgroundColor: '#0F766E', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6 },
-  todayButtonText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  monthTitle: { fontSize: 18, fontWeight: 'bold', color: '#073B5C', textTransform: 'capitalize' },
-  viewToggle: { flexDirection: 'row', backgroundColor: '#0F766E', borderRadius: 6, overflow: 'hidden' },
-  toggleButton: { paddingHorizontal: 15, paddingVertical: 8 },
-  toggleActive: { backgroundColor: '#073B5C' },
-  toggleText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  toggleTextActive: { color: '#fff' },
-
-  // Grille du calendrier
-  calendarContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#DCE5ED',
-    overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 14,
   },
-  weekDaysRow: {
+  champRecherche: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 14,
+    color: '#183568',
+  },
+  filtres: {
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
-    borderBottomWidth: 1,
-    borderBottomColor: '#DCE5ED',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 22,
   },
-  weekDayCell: { flex: 1, paddingVertical: 10, alignItems: 'center' },
-  weekDayText: { fontSize: 12, color: '#526078', fontWeight: '600' },
-  daysGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  dayCell: {
-    width: `${100 / 7}%`, // 7 colonnes parfaites
-    aspectRatio: 1, // Cases carrées
+  boutonFiltre: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DCE5ED',
+  },
+  filtreActif: {
+    backgroundColor: '#079DA6',
+    borderColor: '#079DA6',
+  },
+  texteFiltre: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#526078',
+  },
+  texteFiltreActif: {
+    color: '#FFFFFF',
+  },
+  compteur: {
+    fontSize: 13,
+    color: '#64748B',
+    marginBottom: 14,
+  },
+  carte: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E6EDF2',
+  },
+  enteteCarte: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginBottom: 18,
+  },
+  titreEvenement: {
+    flex: 1,
+    fontSize: 18,
+    lineHeight: 25,
+    fontWeight: 'bold',
+    color: '#183568',
+  },
+  badge: {
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 9,
+  },
+  texteBadge: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  detail: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 9,
+    marginBottom: 10,
+  },
+  texteDetail: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 21,
+    color: '#526078',
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 23,
+    color: '#334155',
+    marginTop: 8,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#EDF2F7',
+  },
+  zoneMessage: {
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 0.5,
-    borderColor: '#F1F5F9',
+    paddingVertical: 35,
+    paddingHorizontal: 15,
   },
-  dayCellOutside: { backgroundColor: '#F8FAFC' },
-  dayCellToday: { backgroundColor: '#E5F7F7' }, // Surlignage pour aujourd'hui
-  dayText: { fontSize: 14, color: '#183568' },
-  dayTextOutside: { color: '#CBD5E1' },
-  dayTextToday: { fontWeight: 'bold', color: '#079DA6' },
-
-  // État vide pour la liste
-  emptyList: { backgroundColor: '#fff', padding: 40, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#DCE5ED' },
-  emptyText: { marginTop: 15, fontSize: 14, color: '#8994A5', textAlign: 'center' },
+  texteMessage: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 14,
+  },
+  texteErreur: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#DC2626',
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  boutonReessayer: {
+    backgroundColor: '#079DA6',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 16,
+  },
+  texteReessayer: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  note: {
+    fontSize: 12,
+    lineHeight: 19,
+    color: '#64748B',
+    textAlign: 'center',
+  },
 });
