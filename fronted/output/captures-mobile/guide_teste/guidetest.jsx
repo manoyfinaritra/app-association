@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Linking, Alert, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect,useState } from 'react';
-import api from '../../components/api/api';
-export default function Dashboard() {
 
-  const [publication, setPublication] = useState([])
+export default function Guide() {
+
   const ouvrirGuideYoutube = async () => {
     const url = 'https://www.youtube.com/@niryinfo9800';
     try {
@@ -20,17 +18,7 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const pub = async() => {
-      try {
-        const response = await api.get('/client/publication')
-        console.log(response.data.donnees)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    pub()
-  },[])
+ 
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
