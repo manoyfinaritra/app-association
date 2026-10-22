@@ -67,7 +67,7 @@ export default function Connexion() {
           ? messageServeur
           : 'Une erreur est survenue sur le serveur.');
       } else {
-        setMessage('Impossible de joindre le serveur. Vérifiez votre connexion et l’adresse du backend.');
+        setMessage('Impossible de joindre le serveur. Vérifiez votre connexion.');
       }
     } finally {
       setChargement(false);
