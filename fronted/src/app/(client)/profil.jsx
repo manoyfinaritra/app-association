@@ -127,7 +127,14 @@ export default function Profil() {
         <Text style={styles.valeur}>Voulez-vous vous déconnecter ?</Text>
         <Pressable accessibilityRole="button" onPress={deconnecter}><Text style={styles.deconnexion}>Confirmer la déconnexion</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => setConfirmation(false)}><Text style={styles.lien}>Annuler</Text></Pressable>
-      </> : <Pressable accessibilityRole="button" onPress={() => setConfirmation(true)}><Text style={styles.deconnexion}>Se déconnecter</Text></Pressable>}
+      </> : <Pressable style={{flexDirection : "row", justifyContent : "space-between",alignItems : "center"}} accessibilityRole="button" onPress={() => setConfirmation(true)}>
+        <Text style={styles.deconnexion}>Se déconnecter</Text>
+        <Ionicons
+                  name="power"
+                  size={22}
+                  color="#ff0000"
+                />
+        </Pressable>}
     </View>
     {onglet === 'publications' && <Text style={[styles.titre, { marginBottom: 16 }]}>Mes publications</Text>}
   </>;
