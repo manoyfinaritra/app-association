@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 30,
+    paddingTop: Platform.OS === 'ios' ? 10 : 20,
   },
   header: {
     marginBottom: 25,
