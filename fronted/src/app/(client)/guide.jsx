@@ -4,8 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function Guide() {
 
-  const ouvrirGuideYoutube = async () => {
-    const url = 'https://www.youtube.com/@niryinfo9800';
+    const example = 'https://www.youtube.com/@niryinfo9800'
+  const ouvrirGuideYoutube = async (lien) => {
+    const url = lien;
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {
@@ -17,8 +18,6 @@ export default function Guide() {
       Alert.alert("Erreur", "Une erreur est survenue lors de l'ouverture du lien.");
     }
   };
-
- 
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -32,10 +31,22 @@ export default function Guide() {
         </Text>
       </View>
 
+      {/* ity function ty averimberina rafa misy lien vaovao tiana ho apetaka */}
+    <AfficheYoutube styles={styles} lien="https://www.youtube.com/@niryinfo9800" ouvrirGuideYoutube={ouvrirGuideYoutube}/>
+    <AfficheYoutube styles={styles} lien="https://www.youtube.com/@niryinfo9800" ouvrirGuideYoutube={ouvrirGuideYoutube}/>
+
+    </ScrollView>
+  );
+}
+
+const AfficheYoutube = ({styles,lien,ouvrirGuideYoutube}) => {
+   
+    return  <View style={styles.containerYoutube}>
+         
       {/* Carte Guide YouTube */}
       <TouchableOpacity 
         style={styles.guideCard} 
-        onPress={ouvrirGuideYoutube}
+        onPress={() => ouvrirGuideYoutube(lien)}
         activeOpacity={0.8}
       >
         <View style={styles.iconContainer}>
@@ -51,10 +62,10 @@ export default function Guide() {
 
         <Ionicons name="chevron-forward" size={24} color="#8994A5" style={styles.arrowIcon} />
       </TouchableOpacity>
+     </View>
 
-    </ScrollView>
-  );
-}
+  }
+ 
 
 const styles = StyleSheet.create({
   container: {
@@ -64,6 +75,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: Platform.OS === 'ios' ? 10 : 20,
+    gap : 10
   },
   header: {
     marginBottom: 25,
@@ -128,4 +140,7 @@ const styles = StyleSheet.create({
   arrowIcon: {
     marginLeft: 'auto',
   },
+  containerYoutube : {
+flex : 1,
+  }
 });
