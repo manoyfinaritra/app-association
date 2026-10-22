@@ -25,6 +25,7 @@ export default function Connexion() {
   const [seSouvenir, setSeSouvenir] = useState(false);
   const [chargement, setChargement] = useState(false);
   const [message, setMessage] = useState('');
+  const [mdpOublier, setMdp] = useState(false)
   const { connecter } = useAuth();
 
   const envoyerConnexion = async () => {
@@ -175,8 +176,9 @@ const hauteurEntete = useHeaderHeight();
           </Pressable>
         </View>
 
-        <View style={styles.ligneOption}>
+        <View  style={styles.ligneOption}>
           <Pressable
+          disabled={!mdpOublier}
             style={styles.ligneConsentement}
             onPress={() => setSeSouvenir(!seSouvenir)}
           >
@@ -188,12 +190,13 @@ const hauteurEntete = useHeaderHeight();
             <Text style={styles.texteConsentement}>Se souvenir de moi</Text>
           </Pressable>
 
-          <Pressable onPress={() => Alert.alert('Information', 'Fonctionnalité de réinitialisation bientôt disponible.')}>
+          <Pressable   disabled={!mdpOublier} onPress={() => Alert.alert('Information', 'Fonctionnalité de réinitialisation bientôt disponible.')}>
             <Text style={styles.texteOublie}>Mot de passe oublié ?</Text>
           </Pressable>
         </View>
 
         <Pressable
+
           style={[styles.bouton, chargement && styles.boutonDesactive]}
           onPress={envoyerConnexion}
           disabled={chargement}
@@ -272,6 +275,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     alignItems: 'center',
+    // marginHorizontal : 18
   },
   iconeEntete: {
     width: 65,
@@ -372,6 +376,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 4,
     marginBottom: 20,
+    opacity : 0.2,
+    
   },
   ligneConsentement: {
     flexDirection: 'row',
@@ -462,4 +468,8 @@ const styles = StyleSheet.create({
     borderColor: '#FF0000',
 
   },
+  disabled : {
+    color : "#cecdcd",
+    opacity : 0.2
+  }
 });

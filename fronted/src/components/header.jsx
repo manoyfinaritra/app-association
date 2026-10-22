@@ -40,11 +40,13 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   entete: {
-    backgroundColor: '#f4f8f8',
+    backgroundColor: '#f8fdfa',
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 5,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#d3e4cf',
+    
+    borderRadius : 20
   },
   topRow: {
     flexDirection: 'row',
