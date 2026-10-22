@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Vibration
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -28,6 +29,7 @@ export default function Connexion() {
     setMessage('');
 
     if (!telephone.trim() || !motDePasse) {
+      Vibration.vibrate()
       Alert.alert(
         'Champs manquants',
         'Veuillez remplir tous les champs avant de continuer.'
@@ -37,6 +39,7 @@ export default function Connexion() {
 
     const telephoneValide = /^\+?[0-9]{7,15}$/.test(telephone.trim());
     if (!telephoneValide) {
+      Vibration.vibrate()
       Alert.alert(
         'Numéro invalide',
         'Veuillez saisir un numéro de téléphone de 7 à 15 chiffres.'
@@ -62,11 +65,13 @@ export default function Connexion() {
       }
     } catch (erreur) {
       if (isAxiosError(erreur) && erreur.response) {
+        Vibration.vibrate()
         const messageServeur = erreur.response.data?.message;
         setMessage(typeof messageServeur === 'string'
           ? messageServeur
           : 'Une erreur est survenue sur le serveur.');
       } else {
+         Vibration.vibrate()
         setMessage('Impossible de joindre le serveur. Vérifiez votre connexion.');
       }
     } finally {
