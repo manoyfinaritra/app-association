@@ -11,8 +11,10 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  Vibration
+  Vibration,
+   KeyboardAvoidingView, Keyboard, Platform 
 } from 'react-native';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -26,6 +28,7 @@ export default function Connexion() {
   const { connecter } = useAuth();
 
   const envoyerConnexion = async () => {
+      Keyboard.dismiss();
     setMessage('');
 
     if (!telephone.trim() || !motDePasse) {
@@ -78,8 +81,13 @@ export default function Connexion() {
       setChargement(false);
     }
   };
-
+const hauteurEntete = useHeaderHeight();
   return (
+     <KeyboardAvoidingView
+    style={styles.fond}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={hauteurEntete}
+  >
     <ScrollView
       style={styles.fond}
       contentContainerStyle={styles.contenu}
@@ -242,6 +250,7 @@ export default function Connexion() {
         </Text>
       </View>
     </ScrollView>
+  </KeyboardAvoidingView>
   );
 }
 
@@ -251,7 +260,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4F9FA',
   },
   contenu: {
-    paddingBottom: 30,
+  
+     flexGrow: 1,
+  paddingBottom: 30,
   },
   entete: {
     backgroundColor: '#073B5C',
