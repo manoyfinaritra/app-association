@@ -1,15 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, Alert, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, TouchableOpacity, Linking, Alert } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Guide() {
 
-  const ouvrirGuideYoutube = async () => {
-    const url = 'https://www.youtube.com/@niryinfo9800';
+  // Lien de votre chaîne
+  const videoUrl = 'https://www.youtube.com/@niryinfo9800';
+
+  // Fonction pour ouvrir le lien externe (dans l'app YouTube ou le navigateur)
+  const ouvrirLienYoutube = async () => {
     try {
-      const supported = await Linking.canOpenURL(url);
+      const supported = await Linking.canOpenURL(videoUrl);
       if (supported) {
-        await Linking.openURL(url);
+        await Linking.openURL(videoUrl);
       } else {
         Alert.alert("Erreur", "Impossible d'ouvrir ce lien sur votre appareil.");
       }
@@ -18,39 +22,66 @@ export default function Guide() {
     }
   };
 
- 
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* En-tête de bienvenue */}
       <View style={styles.header}>
         <Text style={styles.title}>Mon espace client</Text>
         
-        {/* Ici, nous imbriquons le texte pour colorer "AEM" en vert */}
         <Text style={styles.subtitle}>
           Bienvenue dans votre tableau de bord <Text style={styles.aemText}>AEM</Text>.
         </Text>
       </View>
 
-      {/* Carte Guide YouTube */}
-      <TouchableOpacity 
-        style={styles.guideCard} 
-        onPress={ouvrirGuideYoutube}
-        activeOpacity={0.8}
-      >
-        <View style={styles.iconContainer}>
-          <Ionicons name="logo-youtube" size={32} color="#FF0000" />
-        </View>
-        
-        <View style={styles.textContainer}>
+      {/* Section Vidéo YouTube */}
+      <View style={styles.videoCard}>
+        <View style={styles.videoHeader}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="logo-youtube" size={24} color="#FF0000" />
+          </View>
           <Text style={styles.guideTitle}>Guide Vidéo</Text>
-          <Text style={styles.guideDescription}>
-            Découvrez comment utiliser l'application et les actualités de l'association sur notre chaîne YouTube.
-          </Text>
         </View>
 
-        <Ionicons name="chevron-forward" size={24} color="#8994A5" style={styles.arrowIcon} />
-      </TouchableOpacity>
+        {/* Le lecteur vidéo (WebView) */}
+        <View style={styles.webViewContainer}>
+          <WebView
+            style={styles.webView}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            source={{ uri: videoUrl }}
+            allowsInlineMediaPlayback={true}
+            mediaPlaybackRequiresUserAction={false}
+            userAgent="Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36"
+            // Bloque les clics vers l'extérieur pour rester sur la chaîne
+            onShouldStartLoadWithRequest={(request) => {
+              if (
+                request.url.includes('@niryinfo9800') || 
+                request.url.includes('youtube.com') ||
+                request.url.includes('youtube-nocookie.com') ||
+                request.url.startsWith('about:blank')
+              ) {
+                return true;
+              }
+              return false; 
+            }}
+          />
+        </View>
+
+        <Text style={styles.guideDescription}>
+          Découvrez les vidéos de l'association sur notre chaîne YouTube.
+        </Text>
+
+        {/* 🔗 LE LIEN EN BAS */}
+        <TouchableOpacity 
+          style={styles.linkButton} 
+          onPress={ouvrirLienYoutube}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="open-outline" size={18} color="#10B981" style={{ marginRight: 8 }} />
+          <Text style={styles.linkButtonText}>Voir sur YouTube</Text>
+        </TouchableOpacity>
+
+      </View>
 
     </ScrollView>
   );
@@ -79,20 +110,14 @@ const styles = StyleSheet.create({
     color: '#526078',
     lineHeight: 22,
   },
-  
-  // Le style pour le mot AEM en vert
   aemText: {
-    color: '#10B981', // Vert émeraude
-    fontWeight: 'bold', // Optionnel : pour le mettre un peu plus en valeur
+    color: '#10B981',
+    fontWeight: 'bold',
   },
-
-  // Styles de la carte Guide
-  guideCard: {
+  videoCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
+    padding: 15,
     borderWidth: 1,
     borderColor: '#DCE5ED',
     shadowColor: '#000',
@@ -100,32 +125,60 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 3,
+    marginBottom: 20,
+  },
+  videoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   iconContainer: {
-    width: 55,
-    height: 55,
-    borderRadius: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     backgroundColor: '#FFEBEE',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
-  },
-  textContainer: {
-    flex: 1,
-    paddingRight: 10,
+    marginRight: 10,
   },
   guideTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#183568',
-    marginBottom: 4,
+  },
+  webViewContainer: {
+    width: '100%',
+    height: 400, 
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    marginBottom: 10,
+  },
+  webView: {
+    flex: 1,
   },
   guideDescription: {
     fontSize: 13,
     color: '#64748B',
     lineHeight: 18,
+    textAlign: 'center', 
+    marginTop: 5,
+    marginBottom: 15, 
   },
-  arrowIcon: {
-    marginLeft: 'auto',
+  
+  // 🆕 Styles pour le lien en bas
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F4F8',
+    marginTop: 5,
+  },
+  linkButtonText: {
+    color: '#10B981', // Vert AEM
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
