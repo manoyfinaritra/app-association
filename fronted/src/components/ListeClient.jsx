@@ -1,6 +1,5 @@
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
-// FlatList garde les grandes listes fluides sur téléphone.
 export default function ListeClient({ liste, renderItem, entete = null, messageVide }) {
   const { donnees, chargement, erreur, suite, charger } = liste;
   return (

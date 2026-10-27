@@ -33,7 +33,7 @@ export default function Header() {
         </View>
       </View>
 
-      {/* <Text style={styles.sousTitre}>Association d'Entraide Madagascar</Text> */}
+     
     </SafeAreaView>
   );
 }

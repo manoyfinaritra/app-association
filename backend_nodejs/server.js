@@ -11,10 +11,6 @@ import {
 import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
 
-// --------------------------------------------------
-// 1. Configuration du serveur
-// --------------------------------------------------
-
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 3000);
 const clePHP = process.env.LEGACY_PASSWORD_KEY;
@@ -24,7 +20,7 @@ if (!clePHP) {
 }
 
 // Un pool gère les connexions à MySQL.
-// Avec mysql2/promise, nous pouvons utiliser await.
+
 const db = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -40,9 +36,6 @@ const originesAutorisees = [
   'http://192.168.88.14:8081',
 ];
 
-// --------------------------------------------------
-// 2. Envoyer une réponse JSON à React Native
-// --------------------------------------------------
 
 function repondre(res, statut, message, informations = {}) {
   if (res.writableEnded || res.destroyed) {
@@ -60,17 +53,6 @@ function repondre(res, statut, message, informations = {}) {
   }));
 }
 
-// --------------------------------------------------
-// 3. Retrouver les formats possibles du téléphone
-// --------------------------------------------------
-
-
-// --------------------------------------------------
-// 4. Reproduire le chiffrement des anciens comptes PHP
-// --------------------------------------------------
-
-// Cette fonction sert seulement à rester compatible
-// avec le site existant. Elle ne modifie pas la base.
 function chiffrerCommePHP(motDePasse) {
   const cle = createHash('sha256')
     .update(clePHP, 'utf8')
@@ -91,15 +73,12 @@ function chiffrerCommePHP(motDePasse) {
     chiffreur.final(),
   ]);
 
-  // Le code PHP utilise deux encodages Base64.
+ 
   const premierBase64 = resultat.toString('base64');
 
   return Buffer.from(premierBase64, 'utf8').toString('base64');
 }
 
-// --------------------------------------------------
-// 5. Vérifier le mot de passe
-// --------------------------------------------------
 
 async function verifierMotDePasse(motDePasse, valeurEnBase) {
   if (typeof valeurEnBase !== 'string' || !valeurEnBase) {
@@ -109,7 +88,7 @@ async function verifierMotDePasse(motDePasse, valeurEnBase) {
   const utiliseBcrypt = /^\$2[aby]\$/.test(valeurEnBase);
 
   if (utiliseBcrypt) {
-    // bcrypt ne prend en charge que 72 octets maximum.
+
     if (Buffer.byteLength(motDePasse, 'utf8') > 72) {
       return false;
     }
@@ -117,7 +96,7 @@ async function verifierMotDePasse(motDePasse, valeurEnBase) {
     return bcrypt.compare(motDePasse, valeurEnBase);
   }
 
-  // Sinon, on essaie le format AES utilisé par le site.
+
   const motDePasseChiffre = chiffrerCommePHP(motDePasse);
 
   const attendu = Buffer.from(motDePasseChiffre, 'utf8');
@@ -130,9 +109,6 @@ async function verifierMotDePasse(motDePasse, valeurEnBase) {
   return timingSafeEqual(attendu, stocke);
 }
 
-// --------------------------------------------------
-// 6. Traiter une demande de connexion
-// --------------------------------------------------
 
 async function connecterUtilisateur(data, res) {
   const telephone = typeof data?.telephone === 'string'
@@ -158,7 +134,7 @@ async function connecterUtilisateur(data, res) {
     return;
   }
 
-  // On recherche le compte avec les différents formats du numéro.
+ 
   const numeros = variantesTelephone(telephone);
   const placeholders = numeros.map(() => '?').join(', ');
 
@@ -172,7 +148,7 @@ async function connecterUtilisateur(data, res) {
 
   const [utilisateurs] = await db.execute(sqlUtilisateur, numeros);
 
-  // Il doit y avoir exactement un compte correspondant.
+
   if (utilisateurs.length !== 1) {
     repondre(
       res,
@@ -198,7 +174,7 @@ async function connecterUtilisateur(data, res) {
     return;
   }
 
-  // Comme dans le site PHP, on vérifie le dernier paiement.
+ 
   const sqlPaiement = `
     SELECT aem_validation
     FROM aem_payment
@@ -225,7 +201,7 @@ async function connecterUtilisateur(data, res) {
     return;
   }
 
-  // Tout est correct : on renvoie seulement les informations utiles.
+
   repondre(res, 200, 'Connexion réussie !', {
     jeton: creerSession(utilisateur.aem_id_user),
     requires_password_change:
@@ -248,16 +224,13 @@ async function connecterUtilisateur(data, res) {
   });
 }
 
-// --------------------------------------------------
-// 7. Recevoir les requêtes HTTP
-// --------------------------------------------------
 
 const server = http.createServer((req, res) => {
   const origine = req.headers.origin;
 
   res.setHeader('Vary', 'Origin');
 
-  // Ces règles concernent notamment Expo dans un navigateur.
+ 
   if (origine && !originesAutorisees.includes(origine)) {
     repondre(res, 403, 'Cette origine n’est pas autorisée.');
     return;
@@ -294,7 +267,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Les données peuvent arriver en plusieurs morceaux.
   let body = '';
   let taille = 0;
 
@@ -342,9 +314,9 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// --------------------------------------------------
-// 8. Démarrer le serveur
-// --------------------------------------------------
+
+//Démarrer le serveur
+
 
 server.on('error', (erreur) => {
   console.error('Impossible de démarrer le serveur :', erreur.message);

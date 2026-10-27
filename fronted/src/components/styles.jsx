@@ -1,9 +1,7 @@
 import {StyleSheet} from "react-native"
 
 export const styles = StyleSheet.create({
-    //haader styles
     
-    //pour le layouts
      barre: {
     backgroundColor: '#ffffff',
     borderTopColor: '#e2e8f0',
@@ -23,7 +21,7 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
-  //advantages styles
+  
   container: {
     flex: 1,
     backgroundColor: '#F4F9FA',

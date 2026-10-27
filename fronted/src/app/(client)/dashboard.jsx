@@ -180,7 +180,7 @@ export default function Dashboard() {
   const [likeEnCours, setLikeEnCours] = useState(null);
   const [erreur, setErreur] = useState('');
 
-  // Empêcher les doubles clics et les requêtes qui se chevauchent.
+
   const requeteEnCours = useRef(false);
 
   const chargerPublications = useCallback(async (rafraichir = false) => {

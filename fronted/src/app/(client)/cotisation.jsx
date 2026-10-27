@@ -46,7 +46,6 @@ function formaterMontant(valeur) {
 function formaterDate(valeur) {
   if (!valeur) return 'Non renseignée';
 
-  // Les dates SQL sans heure sont affichées directement.
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(valeur))) {
     const [annee, mois, jour] = String(valeur).split('-');
     return `${jour}/${mois}/${annee}`;
@@ -200,7 +199,7 @@ export default function CotisationScreen() {
       if (numeroPage === 1) {
         setCotisations(donnees);
       } else {
-        // Éviter les doublons entre deux pages.
+       
         setCotisations((listeActuelle) => {
           const idsExistants = new Set(
             listeActuelle.map((element) => String(element.id))
@@ -274,7 +273,6 @@ export default function CotisationScreen() {
         />
       }
     >
-      {/* Le header est déjà affiché par le layout client. */}
       <View style={styles.iconeEntete}>
         <Ionicons
           name="wallet-outline"
@@ -289,7 +287,7 @@ export default function CotisationScreen() {
         Consultez vos montants enregistrés et leur validation.
       </Text>
 
-      {/* Chargement initial */}
+     
       {chargement && (
         <View style={styles.zoneMessage}>
           <ActivityIndicator size="large" color="#079DA6" />

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// Exemple temporaire : nous connecterons ensuite le backend.
+
 const documents = [
   {
     id: 1,
@@ -51,8 +51,6 @@ useEffect(() => {
   chargerDocuments();
 }, []);
 
-// Remplace par l’adresse réelle du site qui héberge les PDF.
-// Exemple : http://192.168.10.154/association/AEM/public/
 const URL_SITE_PHP = 'https://association-entraide-madagascar.mg/';
 
 const telecharger = async (id) => {
@@ -145,7 +143,7 @@ const telecharger = async (id) => {
         )}
       </View>
 
-      {/* Documents */}
+      // Documents 
       {documentsFiltres.map((document) => (
         <View key={document.id} style={styles.carte}>
           <View style={styles.ligneDocument}>

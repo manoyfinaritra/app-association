@@ -57,7 +57,7 @@ export default function FormationScreen() {
     setErreur('');
 
     try {
-      // Comme pour les publications, api doit transmettre le jeton.
+      
       const response = await api.get('/client/formations');
       const donnees = response.data?.donnees;
 
@@ -85,7 +85,7 @@ export default function FormationScreen() {
     chargerFormations();
   }, []);
 
-  // Recherche dans les formations déjà chargées.
+  
   const formationsFiltrees = formations.filter((formation) => {
     const texte = [
       formation.titre,
@@ -107,7 +107,7 @@ export default function FormationScreen() {
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
     >
-      {/* Le header est déjà affiché par le layout client. */}
+     
       <View style={styles.entete}>
         <View style={styles.iconeEntete}>
           <Ionicons

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, Text, View, Modal } from 'react-native'; // Ajout de Modal
 import { useAuth } from '../../context/AuthContext';
 import useProfil from '../../hooks/useProfil';
 import useListeClient from '../../hooks/useListeClient';
@@ -45,7 +45,8 @@ export default function Profil() {
   const publications = useListeClient('mes-publications');
   const [onglet, setOnglet] = useState('publications');
   const [edition, setEdition] = useState(false);
-  const [confirmation, setConfirmation] = useState(false);
+  const [confirmation, setConfirmation] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false);
   const [message, setMessage] = useState('');
   if (!utilisateur) return null;
 
@@ -122,36 +123,79 @@ export default function Profil() {
       <Information icone="person-outline" titre="Sexe" valeur={utilisateur.sexe === 'M' ? 'Masculin' : utilisateur.sexe === 'F' ? 'Féminin' : null} />
       <Text style={styles.libelle}>Ces informations sont visibles dans votre espace personnel.</Text>
     </View>}
+    
+  
     <View style={styles.carte}>
-      {confirmation ? <>
-        <Text style={styles.valeur}>Voulez-vous vous déconnecter ?</Text>
-        <Pressable accessibilityRole="button" onPress={deconnecter}><Text style={styles.deconnexion}>Confirmer la déconnexion</Text></Pressable>
-        <Pressable accessibilityRole="button" onPress={() => setConfirmation(false)}><Text style={styles.lien}>Annuler</Text></Pressable>
-      </> : <Pressable style={{flexDirection : "row", justifyContent : "space-between",alignItems : "center"}} accessibilityRole="button" onPress={() => setConfirmation(true)}>
+      <Pressable 
+        style={{flexDirection : "row", justifyContent : "space-between", alignItems : "center"}} 
+        accessibilityRole="button" 
+        onPress={() => setModalVisible(true)} // Ouvre le modal
+      >
         <Text style={styles.deconnexion}>Se déconnecter</Text>
-        <Ionicons
-                  name="power"
-                  size={22}
-                  color="#ff0000"
-                />
-        </Pressable>}
+        <Ionicons name="power" size={22} color="#ff0000" />
+      </Pressable>
     </View>
+    
     {onglet === 'publications' && <Text style={[styles.titre, { marginBottom: 16 }]}>Mes publications</Text>}
   </>;
 
-  return <View style={styles.page}>
-    <ListeClient entete={entete}
-      liste={{ ...publications, charger: actualiser,
-        donnees: onglet === 'publications' ? publications.donnees : [],
-        suite: onglet === 'publications' && publications.suite,
-        erreur: onglet === 'publications' ? publications.erreur : '',
-        chargement: onglet === 'publications' ? publications.chargement : profil.chargement }}
-      messageVide={onglet === 'publications' ? 'Vous n’avez pas encore publié d’actualité.' : ''}
-      renderItem={({ item }) => <View style={styles.carte}>
-        <Text style={styles.titre}>{nom}</Text>
-        <Text style={styles.libelle}>{afficherDate(item.date)} · {Number(item.valide) === 1 ? 'Publiée' : 'En attente de validation'}</Text>
-        <Text style={styles.valeur}>{item.description || 'Publication sans texte.'}</Text>
-      </View>}
-    />
-  </View>;
+  return (
+    <View style={styles.page}>
+      <ListeClient 
+        entete={entete}
+        liste={{ ...publications, charger: actualiser,
+          donnees: onglet === 'publications' ? publications.donnees : [],
+          suite: onglet === 'publications' && publications.suite,
+          erreur: onglet === 'publications' ? publications.erreur : '',
+          chargement: onglet === 'publications' ? publications.chargement : profil.chargement }}
+        messageVide={onglet === 'publications' ? 'Vous n’avez pas encore publié d’actualité.' : ''}
+        renderItem={({ item }) => <View style={styles.carte}>
+          <Text style={styles.titre}>{nom}</Text>
+          <Text style={styles.libelle}>{afficherDate(item.date)} · {Number(item.valide) === 1 ? 'Publiée' : 'En attente de validation'}</Text>
+          <Text style={styles.valeur}>{item.description || 'Publication sans texte.'}</Text>
+        </View>}
+      />
+
+   
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainer}>
+              <Ionicons name="log-out-outline" size={32} color="#ff0000" />
+            </View>
+            <Text style={styles.modalTitle}>Déconnexion</Text>
+            <Text style={styles.modalText}>Voulez-vous vraiment vous déconnecter de votre compte ?</Text>
+            
+            <View style={styles.modalButtons}>
+           
+              <Pressable 
+                style={[styles.modalButton, styles.modalButtonCancel]} 
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonTextCancel}>Annuler</Text>
+              </Pressable>
+              
+             
+              <Pressable 
+                style={[styles.modalButton, styles.modalButtonConfirm]} 
+                onPress={() => {
+                  setModalVisible(false); 
+                  deconnecter(); 
+                }}
+              >
+                <Text style={styles.modalButtonTextConfirm}>Se déconnecter</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+     
+
+    </View>
+  );
 }

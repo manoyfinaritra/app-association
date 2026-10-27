@@ -1,4 +1,4 @@
-// backend_nodejs/publicationsMembre.js
+
 
 export async function traiterPublications(
   req,
@@ -10,9 +10,6 @@ export async function traiterPublications(
 ) {
   const routeListe = url.pathname === '/client/publication';
 
-  // Exemples :
-  // /client/publication/13/like
-  // /client/publication/13/unlike
   const routeLike = url.pathname.match(
     /^\/client\/publication\/(\d+)\/(like|unlike)$/
   );
@@ -24,9 +21,7 @@ export async function traiterPublications(
 
   const idUtilisateur = session.idUtilisateur;
 
-  // ------------------------------------------
-  // 1. Charger les publications et leurs likes
-  // ------------------------------------------
+  // Charger les publications et leurs likes
 
   if (routeListe) {
     if (req.method !== 'GET') {
@@ -82,9 +77,7 @@ export async function traiterPublications(
     return true;
   }
 
-  // ------------------------------------------
-  // 2. Ajouter ou retirer un like
-  // ------------------------------------------
+  // Ajouter ou retirer un like
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');

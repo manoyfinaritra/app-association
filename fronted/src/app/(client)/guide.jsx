@@ -5,10 +5,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function Guide() {
 
-  // Lien de votre chaîne
+  
   const videoUrl = 'https://www.youtube.com/@niryinfo9800';
 
-  // Fonction pour ouvrir le lien externe (dans l'app YouTube ou le navigateur)
+  
   const ouvrirLienYoutube = async () => {
     try {
       const supported = await Linking.canOpenURL(videoUrl);
@@ -24,7 +24,7 @@ export default function Guide() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* En-tête de bienvenue */}
+      
       <View style={styles.header}>
         <Text style={styles.title}>Mon espace client</Text>
         
@@ -33,7 +33,7 @@ export default function Guide() {
         </Text>
       </View>
 
-      {/* Section Vidéo YouTube */}
+      
       <View style={styles.videoCard}>
         <View style={styles.videoHeader}>
           <View style={styles.iconContainer}>
@@ -42,7 +42,7 @@ export default function Guide() {
           <Text style={styles.guideTitle}>Guide Vidéo</Text>
         </View>
 
-        {/* Le lecteur vidéo (WebView) */}
+     
         <View style={styles.webViewContainer}>
           <WebView
             style={styles.webView}
@@ -52,7 +52,7 @@ export default function Guide() {
             allowsInlineMediaPlayback={true}
             mediaPlaybackRequiresUserAction={false}
             userAgent="Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36"
-            // Bloque les clics vers l'extérieur pour rester sur la chaîne
+            
             onShouldStartLoadWithRequest={(request) => {
               if (
                 request.url.includes('@niryinfo9800') || 
@@ -71,7 +71,7 @@ export default function Guide() {
           Découvrez les vidéos de l'association sur notre chaîne YouTube.
         </Text>
 
-        {/* 🔗 LE LIEN EN BAS */}
+      
         <TouchableOpacity 
           style={styles.linkButton} 
           onPress={ouvrirLienYoutube}
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     marginBottom: 15, 
   },
   
-  // 🆕 Styles pour le lien en bas
+  
   linkButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   linkButtonText: {
-    color: '#10B981', // Vert AEM
+    color: '#10B981', 
     fontSize: 14,
     fontWeight: '600',
   },

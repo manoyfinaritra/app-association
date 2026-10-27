@@ -29,7 +29,7 @@ export default function ClientLayout() {
         tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} /> }} />
       <Tabs.Screen name="profil" options={{ title: 'Profil',
         tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" color={color} size={size} /> }} />
-      {/* Les cotisations sont accessibles depuis le profil et l'accueil. */}
+   
       <Tabs.Screen name="cotisation" options={{ href: null, title: 'Mes cotisations' }} />
     </Tabs>
   );

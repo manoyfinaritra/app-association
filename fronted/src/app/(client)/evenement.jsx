@@ -12,11 +12,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 import api from '../../components/api/api';
 
-// Convertir une date en YYYY-MM-DD à Madagascar.
+// date en YYYY-MM-DD
 function cleDate(valeur) {
   if (!valeur) return '';
 
-  // Une date SQL sans heure est conservée telle quelle.
+  // Une date SQL sans heure 
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(valeur))) {
     return String(valeur);
   }
@@ -48,8 +48,7 @@ function formaterDate(valeur) {
   return `${jour}/${mois}/${annee}`;
 }
 
-// Ce statut est calculé avec la date.
-// Il ne correspond pas à une validation en base.
+
 function statutEvenement(date, aujourdHui) {
   const cle = cleDate(date);
 
@@ -105,7 +104,7 @@ export default function EvenementScreen() {
     setErreur('');
 
     try {
-      // api doit déjà transmettre le jeton de connexion.
+      
       const response = await api.get('/client/evenements');
       const donnees = response.data?.donnees;
 
